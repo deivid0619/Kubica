@@ -1,5 +1,6 @@
 """Datos de lo que esta de paso y del despacho."""
-from typing import Literal, Optional
+from datetime import date
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -35,7 +36,14 @@ class DispatchOut(BaseModel):
 
 
 # ---------- de paso sin ser inventario (cajas sueltas, canastas...) ----------
-ParcelKind = Literal["caja", "canasta", "bolsa", "otro"]
+ParcelKind = Literal["caja", "canasta", "bolsa", "otro", "nota"]
+
+
+class ParcelItemIn(BaseModel):
+    """Una talla de una prenda que viene adentro (no es del inventario)."""
+    name: str = Field(min_length=1, max_length=120)
+    size: str = Field(default="", max_length=20)
+    qty: int = Field(ge=1, le=99999)
 
 
 class ParcelIn(BaseModel):
@@ -45,6 +53,8 @@ class ParcelIn(BaseModel):
     owner: str = Field(default="", max_length=120)
     notes: str = Field(default="", max_length=500)
     location_id: str = Field(default=DISPATCH, min_length=1, max_length=32)
+    items: list[ParcelItemIn] = Field(default_factory=list, max_length=300)
+    remind_on: Optional[date] = None
 
 
 class ParcelUpdateIn(BaseModel):
@@ -54,6 +64,8 @@ class ParcelUpdateIn(BaseModel):
     owner: Optional[str] = Field(default=None, max_length=120)
     notes: Optional[str] = Field(default=None, max_length=500)
     location_id: Optional[str] = Field(default=None, min_length=1, max_length=32)
+    items: Optional[list[ParcelItemIn]] = Field(default=None, max_length=300)
+    remind_on: Optional[date] = None  # null: sin recordatorio
 
 
 class ParcelOut(BaseModel):
@@ -64,6 +76,8 @@ class ParcelOut(BaseModel):
     qty: int
     owner: Optional[str] = None
     notes: Optional[str] = None
+    items: Optional[list[dict[str, Any]]] = None  # [{name, size, qty}]
+    remind_on: Optional[str] = None
     location_id: str
     location_name: str = ""
     user_id: Optional[int] = None

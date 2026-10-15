@@ -85,3 +85,42 @@ def test_passing_goods_show_the_remision_notes():
         row = next(d for d in client.get("/api/reports/dispatch", headers=h).json() if d["product"]["sku"] == sku)
         assert row["qty"] == 2 and row["doc_number"] == f"NOTA{tag}"
         assert row["doc_supplier"] == "Taller de prueba" and row["doc_notes"] == "Para el pedido del cliente de prueba"
+
+
+def test_conteo_por_talla_recordatorio_y_notas():
+    tag = uuid.uuid4().hex[:4].upper()
+    with TestClient(app) as client:
+        h = _h(client)
+        units = sum(p["qty"] for p in client.get("/api/products", headers=h).json())
+        # una caja con prendas que no son del inventario, contadas por talla, y para recordar el viernes
+        r = client.post("/api/parcels", headers=h, json={
+            "kind": "caja", "qty": 2, "owner": f"Cliente {tag}", "notes": "Enviar", "remind_on": "2026-10-17",
+            "items": [{"name": " camisa  honda ", "size": "m", "qty": 5}, {"name": "CAMISA HONDA", "size": "M", "qty": 3},
+                      {"name": "Camisa Yamaha", "size": "L", "qty": 4}]})
+        assert r.status_code == 201, r.text
+        box = r.json()
+        assert box["remind_on"] == "2026-10-17"
+        assert box["items"] == [{"name": "CAMISA HONDA", "size": "M", "qty": 8}, {"name": "CAMISA YAMAHA", "size": "L", "qty": 4}]
+        # no es inventario
+        assert sum(p["qty"] for p in client.get("/api/products", headers=h).json()) == units
+
+        # se corrige el conteo y se quita el recordatorio
+        r = client.patch(f"/api/parcels/{box['id']}", headers=h, json={
+            "items": [{"name": "CAMISA HONDA", "size": "M", "qty": 7}], "remind_on": None})
+        assert r.status_code == 200 and r.json()["items"] == [{"name": "CAMISA HONDA", "size": "M", "qty": 7}]
+        assert r.json()["remind_on"] is None
+        # sin tocar el conteo, sigue igual
+        r = client.patch(f"/api/parcels/{box['id']}", headers=h, json={"notes": "Enviar el lunes"})
+        assert r.json()["items"] == [{"name": "CAMISA HONDA", "size": "M", "qty": 7}]
+
+        # una nota suelta: solo lo que hay que recordar, sin prendas ni cantidad
+        assert client.post("/api/parcels", headers=h, json={"kind": "nota", "owner": "Taller"}).status_code == 400
+        r = client.post("/api/parcels", headers=h, json={"kind": "nota", "notes": f"Llamar al taller {tag}", "qty": 5,
+                                                          "remind_on": "2026-10-16", "items": [{"name": "X", "qty": 1}]})
+        assert r.status_code == 201, r.text
+        note = r.json()
+        assert (note["kind"], note["qty"], note["items"], note["remind_on"]) == ("nota", 1, None, "2026-10-16")
+        # lista: sale con lo demas y se marca lista igual
+        assert note["id"] in [p["id"] for p in client.get("/api/parcels", headers=h).json()]
+        assert client.post(f"/api/parcels/{note['id']}/done", headers=h).status_code == 200
+        assert client.post(f"/api/parcels/{box['id']}/done", headers=h).status_code == 200

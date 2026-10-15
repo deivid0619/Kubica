@@ -25,12 +25,28 @@ def _clean(text: str | None) -> str | None:
 
 
 def describe(p: models.Parcel) -> str:
-    """Como se nombra: "1 caja", "3 canastas", "Casco" o "Casco (2)"."""
+    """Como se nombra: "1 caja", "3 canastas", "Casco", "Casco (2)" o "Nota"."""
+    if p.kind == "nota":
+        return "Nota"
     if p.kind in NAMES:
         one, many = NAMES[p.kind]
-        return f"{p.qty} {one if p.qty == 1 else many}"
-    label = p.label or "Otro"
-    return label if p.qty == 1 else f"{label} ({p.qty})"
+        name = f"{p.qty} {one if p.qty == 1 else many}"
+    else:
+        label = p.label or "Otro"
+        name = label if p.qty == 1 else f"{label} ({p.qty})"
+    units = sum(i["qty"] for i in p.items or [])
+    return f"{name} · {units} {'prenda' if units == 1 else 'prendas'}" if units else name
+
+
+def _items(items) -> list[dict] | None:
+    """Lo contado por talla: el nombre en mayuscula y la misma talla repetida se suma."""
+    merged: dict[tuple[str, str], int] = {}
+    for it in items or []:
+        name = " ".join(it.name.upper().split())
+        size = " ".join(it.size.upper().split())
+        if name:
+            merged[(name, size)] = merged.get((name, size), 0) + it.qty
+    return [{"name": n, "size": s, "qty": q} for (n, s), q in merged.items()] or None
 
 
 def _out(p: models.Parcel, names: dict[str, str]) -> schemas.ParcelOut:
@@ -48,6 +64,11 @@ def _get(db: Session, parcel_id: int, lock: bool = False) -> models.Parcel:
 
 
 def _check(db: Session, p: models.Parcel) -> None:
+    if p.kind == "nota":
+        # un recordatorio: no es nada fisico, no lleva prendas ni cantidad
+        p.qty, p.items, p.label = 1, None, None
+        if not p.notes:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Escribe qué hay que recordar.")
     if p.kind == "otro" and not p.label:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Escribe qué es.")
     if not p.owner and not p.notes:
@@ -87,6 +108,7 @@ def create_parcel(payload: schemas.ParcelIn, background: BackgroundTasks, db: Se
     p = models.Parcel(
         kind=payload.kind, label=_clean(payload.label) if payload.kind == "otro" else None, qty=payload.qty,
         owner=_clean(payload.owner), notes=_clean(payload.notes), location_id=payload.location_id.strip().upper(),
+        items=_items(payload.items), remind_on=payload.remind_on.isoformat() if payload.remind_on else None,
         user_id=user.id, user_name=user.name,
     )
     _check(db, p)
@@ -94,8 +116,12 @@ def create_parcel(payload: schemas.ParcelIn, background: BackgroundTasks, db: Se
     db.commit()
     db.refresh(p)
     names = ser.loc_names(db)
-    body = " · ".join(x for x in (p.owner, p.notes, names.get(p.location_id, p.location_id), user.name) if x)
-    background.add_task(push.notify, "in", f"De paso · {describe(p)}", body, "/summary", f"parcel-{p.id}", user.id)
+    if p.kind == "nota":
+        title, place = "Recordatorio", None
+    else:
+        title, place = f"De paso · {describe(p)}", names.get(p.location_id, p.location_id)
+    body = " · ".join(x for x in (p.owner, p.notes, place, p.remind_on and f"recordar el {p.remind_on}", user.name) if x)
+    background.add_task(push.notify, "in", title, body, "/summary", f"parcel-{p.id}", user.id)
     return _out(p, names)
 
 
@@ -118,6 +144,10 @@ def update_parcel(parcel_id: int, payload: schemas.ParcelUpdateIn, db: Session =
         p.notes = _clean(data["notes"])
     if data.get("location_id"):
         p.location_id = data["location_id"].strip().upper()
+    if "items" in data:
+        p.items = _items(payload.items)
+    if "remind_on" in data:
+        p.remind_on = payload.remind_on.isoformat() if payload.remind_on else None
     try:
         _check(db, p)
     except HTTPException:
@@ -139,8 +169,11 @@ def mark_done(parcel_id: int, background: BackgroundTasks, db: Session = Depends
     p.done_by = user.name
     db.commit()
     db.refresh(p)
-    body = " · ".join(x for x in (p.owner, user.name) if x)
-    background.add_task(push.notify, "out", f"Ya salió · {describe(p)}", body, "/summary", f"parcel-{p.id}", user.id)
+    if p.kind == "nota":
+        title, body = "Recordatorio listo", " · ".join(x for x in (p.notes, user.name) if x)
+    else:
+        title, body = f"Ya salió · {describe(p)}", " · ".join(x for x in (p.owner, user.name) if x)
+    background.add_task(push.notify, "out", title, body, "/summary", f"parcel-{p.id}", user.id)
     return _out(p, ser.loc_names(db))
 
 

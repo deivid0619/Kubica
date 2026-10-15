@@ -15,6 +15,7 @@ _NEW_COLUMNS = {
                   ("closed_at", "TIMESTAMP WITH TIME ZONE")],
     "reserve_items": [("image_url", "VARCHAR(500)")],
     "view_links": [("notify", "JSON")],
+    "parcels": [("items", "JSON"), ("remind_on", "VARCHAR(10)")],
 }
 
 

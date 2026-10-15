@@ -1324,3 +1324,27 @@ html[data-nav="back"]::view-transition-new(root){animation-name:vt-in-left}
 /* busqueda del 3D: lo que solo esta en la reserva */
 .wh-result.res{background:var(--lime-soft)}
 .code.res-tag{background:var(--lime-deep);color:#fff}
+/* de paso: recordatorios, notas y lo contado por talla */
+.need.parcel.due{margin:0 -12px;padding-left:12px;padding-right:12px;background:var(--amber-soft);border-radius:var(--r-sm)}
+.need-t small.remind{font-weight:700}
+.need-t small.remind.today,.need-t small.remind.late{color:#A9480A}
+.need-t small.remind.soon,.need-t small.remind.later{color:var(--lime-deep)}
+.need-t small.parcel-count{color:var(--graphite);font-weight:600}
+.need-t b.parcel-note{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.remind-pick{margin:4px 0 0;padding:2px 0;flex-wrap:wrap;overflow:visible}
+.remind-pick .chip[aria-checked="true"],.remind-pick .chip.on{background:var(--lime)}
+.remind-day{position:relative;gap:8px;padding-right:10px}
+.remind-day input{height:28px;padding:0 6px;border:0;border-radius:var(--r-xs);background:rgba(255,255,255,.7);font:600 13px/1 var(--font);color:var(--ink)}
+.pc-ref{display:grid;gap:8px;margin-bottom:10px;padding:10px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1.5px var(--line)}
+.pc-ref-head{display:grid;grid-template-columns:minmax(0,1fr) 32px;gap:6px;align-items:center}
+.pc-sizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pc-size{display:grid;gap:3px;padding:6px;border-radius:var(--r-sm);background:var(--fog);text-align:center}
+.pc-size span{font:800 italic 13px/1 var(--font)}
+.pc-size input{width:100%;height:36px;border:1.5px solid var(--line);border-radius:var(--r-xs);background:var(--paper);text-align:center;font:700 16px/1 var(--font);color:var(--ink)}
+.pc-size input:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(192,255,0,.6)}
+.pc-size.on{background:var(--lime-soft)}
+.pc-size.on span{color:var(--lime-deep)}
+.pc-ref-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
+.pc-ref-foot .link-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 0}
+.pc-total{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;padding:10px 12px;border-radius:var(--r-sm);background:var(--lime-soft);font-size:13.5px}
+.pc-total .btn{display:inline-flex;align-items:center;gap:6px}

@@ -21,7 +21,7 @@ Lo común a todos está en `app/core/`: configuración, base de datos, sesión, 
 | **`remisiones`** | Lo que llega de un proveedor (ver su README) | `POST /api/documents/remision`, `/recent-entries` |
 | `facturas` | Descontar una factura, el pedido que espera su factura, anexarla o deshacerlo | `POST /api/documents/factura`, `/pedido`, `/{id}/factura`, `DELETE /{id}` |
 | `conteo` | Contar una ubicación y ajustar lo que no cuadra | `POST /api/documents/conteo` |
-| `despacho` | Lo que está de paso sin ser inventario (cajas, bolsas…) | `/api/parcels/*` |
+| `despacho` | Lo que está de paso sin ser inventario (cajas, bolsas…), con lo contado por talla y su PDF, y notas para recordar con fecha | `/api/parcels/*` |
 | `reportes` | Qué pedir, flujo semanal, lo que no se mueve, valor, lo que más sale, exportar y datos de prueba | `/api/reports/*` |
 | `catalogo` | La tienda en línea (precios, fotos y códigos parecidos) | `/api/catalog/*` |
 | `avisos` | Avisos al celular y avisos para los enlaces "solo ver" | `/api/push/*`, `/api/notices/*` |

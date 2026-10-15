@@ -31,7 +31,7 @@ const LocationSheet = forwardRef(function LocationSheet(
   const isOutlet = outletNow ?? outlet
   const [parcelOpen, setParcelOpen] = useState(null) // 'new' o lo anotado que se esta viendo
   const { data: parcels } = usePolling('/api/parcels', { interval: 20000 })
-  const here = (parcels || []).filter((x) => x.location_id === locationId)
+  const here = (parcels || []).filter((x) => x.location_id === locationId && x.kind !== 'nota') // las notas no estan en ningun lugar
   const items = itemsAt(products, locationId)
     .sort((a, b) => (a.p.sku === highlightSku ? -1 : b.p.sku === highlightSku ? 1 : b.here - a.here))
   const units = items.reduce((t, i) => t + i.here, 0)
