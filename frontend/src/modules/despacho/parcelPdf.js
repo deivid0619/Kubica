@@ -4,12 +4,10 @@
 // momento; no se guarda. jsPDF se carga solo al pedirlo.
 import { groupItems, itemsTotal } from './parcelParts'
 import { sizeRank } from '../../core/utils'
+import { datosMarca, nombreApp } from '../../core/marca'
 
-const INK = [11, 11, 11]
-const LIME = [192, 255, 0]
-const GRAY = [115, 118, 111]
-const LINE = [222, 226, 218]
-const SOFT = [243, 246, 239]
+// los colores de la marca de esta instalacion (Bodega o la de la empresa)
+const { ink: INK, accent: ACCENT, gray: GRAY, line: LINE, soft: SOFT, onInk: ON_INK } = datosMarca()
 
 // data: { title, owner, notes, place, by, when, items: [{ name, size, qty }] }
 export async function parcelPdf({ title, owner, notes, place, by, when, items }) {
@@ -32,9 +30,9 @@ export async function parcelPdf({ title, owner, notes, place, by, when, items })
   // encabezado: la marca y el titulo
   pdf.setFillColor(...INK)
   pdf.rect(0, 0, W, 24, 'F')
-  pdf.setFillColor(...LIME)
+  pdf.setFillColor(...ACCENT)
   pdf.rect(0, 24, W, 1.2, 'F')
-  text('Pigmalion · Bodega · de paso', M, 9, { size: 9, color: [185, 189, 182] })
+  text(`${nombreApp()} · de paso`, M, 9, { size: 9, color: ON_INK })
   text(title, M, 18, { size: 17, bold: true, color: [255, 255, 255] })
   let y = 33
 
@@ -113,7 +111,7 @@ export async function parcelPdf({ title, owner, notes, place, by, when, items })
   // la fila del total
   if (matrix) {
     const per = sizes.map((s) => (items || []).filter((it) => (it.size || '') === s).reduce((t, it) => t + it.qty, 0))
-    pdf.setFillColor(...LIME)
+    pdf.setFillColor(...ACCENT)
     if (y + 8 <= H - 18) pdf.rect(M, y, W - 2 * M, 8, 'F')
     row(['Total', ...per, total], { h: 8, bold: true })
   } else {

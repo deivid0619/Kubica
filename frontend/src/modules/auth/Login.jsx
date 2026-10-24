@@ -2,20 +2,30 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { LINK_ERROR, keyFrom, useAuth } from '../../core/AuthContext'
 import { ApiError } from '../../core/api'
+import { marca } from '../../core/marca'
 import { BrandMark } from '../../ui/Icon'
 
-function Stripes() {
+// el fondo del login, en el color de la marca: en Bodega una pared de canastas
+// que se desvanece, con una encendida (como el logo); en Pigmalion, sus
+// franjas inclinadas
+function Decor() {
   return (
     <svg className="login-stripes" viewBox="0 0 420 420" aria-hidden="true">
       <defs>
-        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#C0FF00" stopOpacity=".5" />
-          <stop offset="1" stopColor="#C0FF00" stopOpacity="0" />
+        <linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="420">
+          <stop offset="0" style={{ stopColor: 'var(--accent)', stopOpacity: 0.5 }} />
+          <stop offset="1" style={{ stopColor: 'var(--accent)', stopOpacity: 0 }} />
         </linearGradient>
       </defs>
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <path key={i} d={`M${150 + i * 46} 0h26L${96 + i * 46} 420H${70 + i * 46}z`} fill="url(#fade)" opacity={1 - i * 0.13} />
-      ))}
+      {marca() === 'pigmalion'
+        ? [0, 1, 2, 3, 4, 5].map((i) => (
+          <path key={i} d={`M${150 + i * 46} 0h26L${96 + i * 46} 420H${70 + i * 46}z`} fill="url(#fade)" opacity={1 - i * 0.13} />
+        ))
+        : Array.from({ length: 30 }, (_, i) => {
+          const r = Math.floor(i / 5), c = i % 5
+          const lit = r === 1 && c === 3
+          return <rect key={i} x={60 + c * 72} y={r * 70} width="58" height="46" rx="10" fill="url(#fade)" style={lit ? { fill: 'var(--accent)', opacity: 0.85 } : { opacity: 1 - c * 0.12 }} />
+        })}
     </svg>
   )
 }
@@ -73,7 +83,7 @@ export default function Login() {
 
   return (
     <div className="login">
-      <Stripes />
+      <Decor />
       <div className="login-box">
         <div className="login-brand">
           <BrandMark size={38} />

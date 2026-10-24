@@ -31,6 +31,9 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
+      # la marca de los Excel: vacio = Bodega; "pigmalion" = la de Pigmalion
+      - key: MARCA
+        sync: false
 
   - type: web
     name: bodega-frontend
@@ -40,6 +43,9 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
+        sync: false
+      # colores, logo e iconos: vacio = Bodega; "pigmalion" = los de Pigmalion
+      - key: VITE_MARCA
         sync: false
     routes:
       - type: rewrite

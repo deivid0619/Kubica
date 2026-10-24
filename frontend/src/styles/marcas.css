@@ -1,0 +1,24 @@
+/* ===== Marcas: un tema por empresa =====
+   global.css trae la marca propia de Bodega (celeste). Una empresa que quiere
+   sus colores tiene aqui su bloque: solo cambia tokens, nunca pantallas.
+   La marca se elige con data-marca en <html> (ver core/marca.js): al
+   construir con VITE_MARCA, o en el navegador con ?marca=pigmalion. */
+
+/* Pigmalion: negro asfalto, lima y letra italica, como pigmalionmoto.com */
+:root[data-marca="pigmalion"]{
+  --ink:#0B0B0B; --ink-2:#1B1C1B; --ink-3:#2C2D2C; --ink-rgb:11,11,11;
+  --accent:#C0FF00; --accent-press:#AAE300; --accent-soft:#F2FFD1; --accent-deep:#4E6B00;
+  --accent-rgb:192,255,0; --accent-dim-rgb:110,150,0;
+  --fog:#F3F6EF; --fog-2:#E8ECE3; --fog-3:#DCE1D6;
+  --graphite:#454645; --muted:#73766F; --faint:#A3A79F;
+  --line:#E1E3E1; --line-2:#CFD3CC;
+  --data-1:#6A9A00; --data-2:#2A78D6;
+  --italic:italic; --num-track:0em; --slant:1;
+  --n-ECEFE8:#ECEFE8; --n-F6F8F3:#F6F8F3; --n-EEF1EA:#EEF1EA; --n-E4E8E0:#E4E8E0;
+  --n-E2E6DE:#E2E6DE; --n-DFE4DA:#DFE4DA; --n-DADDD6:#DADDD6; --n-D3D7CF:#D3D7CF;
+  --n-FBFCF9:#FBFCF9; --n-C4C8C0:#C4C8C0; --n-BFC3BB:#BFC3BB; --n-9EA39A:#9EA39A;
+  --n-A9ADA6:#A9ADA6; --n-C9CCC5:#C9CCC5; --n-B9BDB6:#B9BDB6; --n-8F938C:#8F938C;
+  --n-2E302E:#2E302E; --n-262726:#262726; --n-121312:#121312;
+}
+/* la franja inclinada antes de cada titulo (en Bodega es una canasta cuadrada) */
+[data-marca="pigmalion"] .h-sec::before{width:14px;height:5px;border-radius:2px}

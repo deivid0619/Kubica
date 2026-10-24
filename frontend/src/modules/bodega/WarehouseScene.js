@@ -19,13 +19,15 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
+import { datosMarca, hex } from '../../core/marca'
 
 const BW = 0.42, BH = 0.3, BD = 0.42, PI = Math.PI
 // hasta cuanto pueden estar corridos dos muebles y seguir siendo la misma pila
 // (menos que una canasta: dos muebles uno al lado del otro no se juntan)
 const STACK_GAP = 0.35
 const SLAB = 0.16, WALL_H = 3.0, WALL_T = 0.12, WALL_STUB = 0.34
-const LIME = 0xc0ff00, INK = 0x0b0b0b, AMBER = 0xe5690f
+// el color de acento (seleccion, marcas) y el oscuro, de la marca de esta instalacion
+const ACCENT = hex(datosMarca().accent), INK = hex(datosMarca().ink), AMBER = 0xe5690f
 const PH_MIN = 0.02, PH_MAX = 1.42, R_MIN = 1.6, R_MAX = 40
 const CAM_KEYS = ['th', 'ph', 'r', 'tx', 'ty', 'tz', 'ox', 'oy']
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
@@ -335,9 +337,9 @@ export class WarehouseScene {
       m.toneMapped = false
       return m
     }
-    this.lineMats = [lineMat(INK, 5.5, 0.9), lineMat(LIME, 2.6), lineMat(LIME, 2, 0.9)]
+    this.lineMats = [lineMat(INK, 5.5, 0.9), lineMat(ACCENT, 2.6), lineMat(ACCENT, 2, 0.9)]
     const sel = new THREE.Group()
-    const selFill = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ color: LIME, transparent: true, opacity: 0.22, depthWrite: false, depthTest: false, toneMapped: false }))
+    const selFill = new THREE.Mesh(unit, new THREE.MeshBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.22, depthWrite: false, depthTest: false, toneMapped: false }))
     sel.add(selFill, new LineSegments2(edges, this.lineMats[0]), new LineSegments2(edges, this.lineMats[1]))
     sel.visible = false
     overlay.add(sel)
@@ -346,7 +348,7 @@ export class WarehouseScene {
     // marcas de "todas las ubicaciones de una prenda": las mismas cajas lima
     this._unitGeo = unit
     this._edgeGeo = edges
-    this.markFill = new THREE.MeshBasicMaterial({ color: LIME, transparent: true, opacity: 0.3, depthWrite: false, depthTest: false, toneMapped: false })
+    this.markFill = new THREE.MeshBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.3, depthWrite: false, depthTest: false, toneMapped: false })
     this.marks = []
     this.markList = []
     const hover = new LineSegments2(edges, this.lineMats[2])
@@ -1258,7 +1260,7 @@ export class WarehouseScene {
         }
         touched.add(o.folds)
         if (!labelColors.has(o.labels)) labelColors.set(o.labels, [])
-        labelColors.get(o.labels).push([o.i, supply ? LIME : low ? AMBER : units > 0 ? 0xffffff : 0x8a8d88])
+        labelColors.get(o.labels).push([o.i, supply ? ACCENT : low ? AMBER : units > 0 ? 0xffffff : 0x8a8d88])
       } else if (o.kind === 'shelf') {
         const k = units > 0 ? Math.min(o.n, Math.ceil(units / 6)) : 0
         for (let j = 0; j < o.n; j++) {

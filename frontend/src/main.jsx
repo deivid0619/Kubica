@@ -8,6 +8,7 @@ import { ToastProvider } from './ui/ToastContext.jsx'
 import { ConfirmProvider } from './ui/ConfirmContext.jsx'
 import { NotificationPrefsProvider } from './modules/avisos/NotificationPrefsContext.jsx'
 import './styles/global.css'
+import './styles/marcas.css'
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}))

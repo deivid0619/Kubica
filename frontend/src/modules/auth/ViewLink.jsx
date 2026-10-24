@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, ApiError } from '../../core/api'
+import { datosMarca } from '../../core/marca'
 import { useToast } from '../../ui/ToastContext'
 import { useConfirm } from '../../ui/ConfirmContext'
 import Icon from '../../ui/Icon'
@@ -87,7 +88,8 @@ export default function ViewLink() {
   }
   const share = async (l) => {
     try {
-      await navigator.share({ title: 'Bodega · solo ver', text: `${l.name}: la bodega de Pigmalion. Puedes ver todo, sin cambiar nada.`, url: urlOf(l) })
+      const { empresa } = datosMarca()
+      await navigator.share({ title: 'Bodega · solo ver', text: `${l.name}: la bodega${empresa ? ` de ${empresa}` : ''}. Puedes ver todo, sin cambiar nada.`, url: urlOf(l) })
     } catch { /* se cerro sin compartir */ }
   }
 

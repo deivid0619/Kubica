@@ -1,6 +1,6 @@
 """Los Excel que se descargan: el inventario (varias hojas), lo que hay que
 pedir y el historial. Archivos .xlsx de verdad: encabezados con los colores
-de Pigmalion, filtros, columnas fijas, totales que respetan el filtro,
+de la marca, filtros, columnas fijas, totales que respetan el filtro,
 colores por estado y listos para imprimir."""
 from __future__ import annotations
 
@@ -23,7 +23,14 @@ from app.modules.bodega.logic import DISPATCH
 from app.modules.catalogo import service as catalog
 from app.modules.inventario import serializers as ser, service as inv
 
-INK, LIME, LIME_DEEP, FOG, MUTED = "0B0B0B", "C0FF00", "6A9A00", "F3F6EF", "6B6F68"
+# los colores y el nombre de cada marca (los mismos de frontend/src/core/marca.js)
+MARCAS = {
+    "bodega": dict(empresa="", ink="0B1220", accent="38B6FF", deep="1A8FE0", fog="F2F5F9", muted="626B7C"),
+    "pigmalion": dict(empresa="Pigmalion", ink="0B0B0B", accent="C0FF00", deep="6A9A00", fog="F3F6EF", muted="6B6F68"),
+}
+_M = MARCAS.get(settings.marca, MARCAS["bodega"])
+INK, ACCENT, ACCENT_DEEP, FOG, MUTED = _M["ink"], _M["accent"], _M["deep"], _M["fog"], _M["muted"]
+APP = f"Bodega {_M['empresa']}".strip()  # "Bodega" o "Bodega Pigmalion"
 WHITE = "FFFFFF"
 INT, MONEY, DATE = "#,##0", '"$" #,##0', "dd/mm/yyyy hh:mm"
 SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "XXXL", "3XL", "4XL", "5XL"]
@@ -64,8 +71,8 @@ def _title(ws, title: str, subtitle: str, width: int) -> None:
     ws["A1"].font = Font(name="Calibri", size=18, bold=True, color=INK)
     ws["A2"] = subtitle
     ws["A2"].font = Font(name="Calibri", size=10, color=MUTED)
-    for c in range(1, width + 1):  # la linea verde de Pigmalion bajo el titulo
-        ws.cell(row=2, column=c).border = Border(bottom=Side(style="medium", color=LIME))
+    for c in range(1, width + 1):  # la linea del color de la marca bajo el titulo
+        ws.cell(row=2, column=c).border = Border(bottom=Side(style="medium", color=ACCENT))
     ws.row_dimensions[1].height = 28
 
 
@@ -128,7 +135,7 @@ def _print(ws, header_row: int, landscape: bool = True) -> None:
     ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
     ws.print_title_rows = f"{header_row}:{header_row}"
-    ws.oddFooter.center.text = "Bodega Pigmalion · página &P de &N"
+    ws.oddFooter.center.text = f"{APP} · página &P de &N"
 
 
 def _status_colors(ws, col: str, first: int, last: int) -> None:
@@ -137,7 +144,7 @@ def _status_colors(ws, col: str, first: int, last: int) -> None:
             operator="equal", formula=[f'"{text}"'], fill=PatternFill("solid", fgColor=bg), font=Font(color=fg, bold=True)))
 
 
-def _bars(ws, col: str, first: int, last: int, color: str = LIME_DEEP) -> None:
+def _bars(ws, col: str, first: int, last: int, color: str = ACCENT_DEEP) -> None:
     ws.conditional_formatting.add(f"{col}{first}:{col}{last}", DataBarRule(
         start_type="num", start_value=0, end_type="max", color=color, showValue=True))
 
@@ -189,7 +196,7 @@ def inventory_workbook(db: Session, who: str) -> bytes:
     now = datetime.now(ser.BOGOTA)
     stamp = f"Generado el {_when(now)} · por {who}"
     wb = Workbook()
-    wb.properties.title = "Inventario · Bodega Pigmalion"
+    wb.properties.title = f"Inventario · {APP}"
     wb.properties.creator = "Bodega"
 
     # --- Inventario (una fila por talla) ---
@@ -316,7 +323,7 @@ def _needs_sheet(ws, rows: list[dict], stamp: str) -> None:
 
 
 def _summary(ws, rows: list[dict], by_ref: dict, reserve_items: list, stamp: str) -> None:
-    _title(ws, "Inventario · Bodega Pigmalion", stamp, 4)
+    _title(ws, f"Inventario · {APP}", stamp, 4)
     priced = [r for r in rows if r["price"]]
     kpis = [
         ("Referencias", len(by_ref), INT),
@@ -343,7 +350,7 @@ def _summary(ws, rows: list[dict], by_ref: dict, reserve_items: list, stamp: str
         for c in (a, b):
             c.fill = PatternFill("solid", fgColor=FOG if i % 2 else WHITE)
             c.border = Border(bottom=Side(style="thin", color="E4E8E0"))
-    ws.cell(row=5, column=2).fill = PatternFill("solid", fgColor=LIME)  # la primera cifra, en verde Pigmalion
+    ws.cell(row=5, column=2).fill = PatternFill("solid", fgColor=ACCENT)  # la primera cifra, en el color de la marca
     top = sorted([r for r in rows if r["out30"]], key=lambda r: -r["out30"])[:10]
     ws["D4"] = "Lo que más sale (30 días)"
     ws["D4"].font = Font(size=12, bold=True, color=INK)
@@ -384,7 +391,7 @@ def needs_workbook(db: Session, who: str) -> bytes:
     """Solo lo que hay que pedir (el boton "Descargar" de Por reponer)."""
     rows = _inventory_rows(db)["rows"]
     wb = Workbook()
-    wb.properties.title = "Por pedir · Bodega Pigmalion"
+    wb.properties.title = f"Por pedir · {APP}"
     ws = wb.active
     ws.title = "Por pedir"
     _needs_sheet(ws, rows, f"Generado el {_when(datetime.now(ser.BOGOTA))} · por {who}")
@@ -398,7 +405,7 @@ def movements_workbook(db: Session, who: str, limit: int = 5000) -> bytes:
     names = ser.loc_names(db)
     moves = db.query(models.Movement).order_by(models.Movement.id.desc()).limit(limit).all()
     wb = Workbook()
-    wb.properties.title = "Historial · Bodega Pigmalion"
+    wb.properties.title = f"Historial · {APP}"
     ws = wb.active
     ws.title = "Historial"
     h = ["Fecha", "Tipo", "Referencia", "Talla", "Código", "Cambio", "Antes", "Después", "Ubicación", "Hacia", "Nota", "Usuario"]
@@ -437,7 +444,7 @@ def movements_workbook(db: Session, who: str, limit: int = 5000) -> bytes:
     last = _table(wd, "PorDia", 4, dh, dbody, {"Día": "dd/mm/yyyy", "Entraron": INT, "Salieron": INT,
                                                "Ajustes de conteo": INT, "Neto": '+#,##0;-#,##0;0'},
                   totals=["Entraron", "Salieron", "Ajustes de conteo", "Neto"])
-    _bars(wd, "B", 5, last, LIME_DEEP)
+    _bars(wd, "B", 5, last, ACCENT_DEEP)
     _bars(wd, "C", 5, last, INK)
     wd.column_dimensions["A"].width = 13
     wd.freeze_panes = "B5"

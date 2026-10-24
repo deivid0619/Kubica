@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     photos_dir: str = "fotos-documentos"
     # quien manda los avisos al celular (lo piden Google y Apple)
     vapid_subject: str = "https://pigmalionmoto.com"
+    # la marca de esta instalacion (colores y nombre de los Excel): "bodega"
+    # (la propia) o la de una empresa, p. ej. "pigmalion". La misma que
+    # VITE_MARCA en el frontend.
+    marca: str = "bodega"
     # SOLO DESARROLLO: si es true, todas las rutas se tratan como si hubiera
     # iniciado sesion el primer usuario admin, sin pedir login. Nunca poner
     # en true en produccion.

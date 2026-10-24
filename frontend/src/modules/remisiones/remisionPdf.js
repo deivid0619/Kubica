@@ -2,12 +2,10 @@
 // referencia y talla, que falta y donde quedo. Se arma en el celular en el
 // momento y se descarga o se comparte; no se guarda en ningun lado.
 // summary: lo que da orderSummary(). jsPDF se carga solo al pedirlo.
+import { datosMarca, nombreApp } from '../../core/marca'
 
-const INK = [11, 11, 11]
-const LIME = [192, 255, 0]
-const GRAY = [115, 118, 111]
-const LINE = [222, 226, 218]
-const SOFT = [243, 246, 239]
+// los colores de la marca de esta instalacion (Bodega o la de la empresa)
+const { ink: INK, accent: ACCENT, gray: GRAY, line: LINE, soft: SOFT, onInk: ON_INK } = datosMarca()
 const WARN = [201, 3, 3]
 
 const fmtDay = (iso) => {
@@ -42,9 +40,9 @@ export async function remisionPdf(summary, { title, registered }) {
   // encabezado: la marca y el titulo
   pdf.setFillColor(...INK)
   pdf.rect(0, 0, W, 24, 'F')
-  pdf.setFillColor(...LIME)
+  pdf.setFillColor(...ACCENT)
   pdf.rect(0, 24, W, 1.2, 'F')
-  text('Pigmalion · Bodega', M, 9, { size: 9, color: [185, 189, 182] })
+  text(nombreApp(), M, 9, { size: 9, color: ON_INK })
   text(title, M, 18, { size: 17, bold: true, color: [255, 255, 255] })
   y = 33
 

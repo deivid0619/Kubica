@@ -1,3 +1,5 @@
+import { marca } from '../core/marca'
+
 const PATHS = {
   warehouse: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5',
   hanger: 'M12 7.2a2.1 2.1 0 1 1 2.1-2.1c0 1.3-2.1 1.5-2.1 3.1v.4l-8.4 6.9a1.4 1.4 0 0 0 .9 2.5h15a1.4 1.4 0 0 0 .9-2.5L12 8.6',
@@ -60,13 +62,25 @@ export default function Icon({ name, size = 22, stroke = 1.9, className, ...rest
   )
 }
 
-// Marca de la app: tres barras inclinadas, como repisas en movimiento.
+// Marca de la app: 3 x 3 canastas y una encendida, "sabes exactamente donde
+// esta". Pigmalion conserva la suya: tres barras inclinadas.
+const CELLS = [4, 11.5, 19].flatMap((y, r) => [2.5, 10.5, 18.5].map((x, c) => ({ x, y, lit: r === 1 && c === 2 })))
+
 export function BrandMark({ size = 28 }) {
+  if (marca() === 'pigmalion') {
+    return (
+      <svg viewBox="0 0 28 28" width={size} height={size} aria-hidden="true">
+        <path d="M10.2 4.5h14.3l-2.6 4.6H7.6z" style={{ fill: 'var(--accent)' }} />
+        <path d="M7.6 11.7h14.3l-2.6 4.6H5z" style={{ fill: 'var(--accent)' }} />
+        <path d="M5 18.9h14.3l-2.6 4.6H2.4z" style={{ fill: 'var(--accent)' }} />
+      </svg>
+    )
+  }
   return (
     <svg viewBox="0 0 28 28" width={size} height={size} aria-hidden="true">
-      <path d="M10.2 4.5h14.3l-2.6 4.6H7.6z" fill="#C0FF00" />
-      <path d="M7.6 11.7h14.3l-2.6 4.6H5z" fill="#C0FF00" />
-      <path d="M5 18.9h14.3l-2.6 4.6H2.4z" fill="#C0FF00" />
+      {CELLS.map(({ x, y, lit }) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width="7" height="5.5" rx="1.4" style={lit ? { fill: 'var(--accent)' } : { fill: '#fff', fillOpacity: 0.28 }} />
+      ))}
     </svg>
   )
 }
