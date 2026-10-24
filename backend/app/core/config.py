@@ -13,8 +13,9 @@ class Settings(BaseSettings):
     admin_password: str = "cambiar123"
     cors_origins: str = "http://localhost:5190"
     # listado publico de la tienda (Shopify) para llenar nombre, talla, foto y
-    # precio de un codigo nuevo. Vacio: sin catalogo.
-    catalog_url: str = "https://pigmalionmoto.com/products.json"
+    # precio de un codigo nuevo. Vacio: sin catalogo. Es de cada empresa: la
+    # de Pigmalion es https://pigmalionmoto.com/products.json
+    catalog_url: str = ""
     # fotos de remisiones y facturas (la prueba de lo que llego y salio):
     # Supabase Storage si estan la URL del proyecto y la llave service_role
     # (solo en Render, nunca en el repositorio); si no, una carpeta local.
