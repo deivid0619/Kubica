@@ -1,4 +1,6 @@
-# Bodega
+# Kubica
+
+(Antes se llamaba Bodega; el repositorio conserva ese nombre.)
 
 Sistema de inventario para la bodega: distribución de la
 bodega en 3D (armada a partir del recorrido en video), escaneo de códigos
@@ -201,10 +203,11 @@ variables de arriba.
 
 ## Marca de cada empresa
 
-Bodega tiene su marca propia (azul noche y celeste, letra derecha, el logo
-de las canastas) y cada empresa puede tener la suya sin tocar pantallas:
+Kubica tiene su marca propia (grafito y amarillo estantería, letra Archivo
+ancha, el logo del cubo con la tapa amarilla) y cada empresa puede tener la
+suya sin tocar pantallas:
 
-- **Colores:** `frontend/src/styles/global.css` trae los de Bodega; cada
+- **Colores:** `frontend/src/styles/global.css` trae los de Kubica; cada
   empresa tiene un bloque en `frontend/src/styles/marcas.css` que solo cambia
   tokens (`--ink`, `--accent`, los grises...). Hoy está `pigmalion`: negro,
   lima y letra itálica.
@@ -213,14 +216,14 @@ de las canastas) y cada empresa puede tener la suya sin tocar pantallas:
   `backend/app/modules/reportes/excel.py`.
 - **Íconos:** `frontend/public/<icono>-<marca>.<ext>` (p. ej.
   `favicon-pigmalion.svg`, `manifest-pigmalion.json`); si una marca no trae
-  los suyos, usa los de Bodega.
+  los suyos, usa los de Kubica.
 - **Elegir la marca de una instalación:** `VITE_MARCA` en el frontend y
   `MARCA` en el backend (en Render, en el Environment de cada servicio).
-  Vacío: Bodega. La instalación de Pigmalion lleva `pigmalion` en las dos, y
+  Vacío: Kubica. La instalación de Pigmalion lleva `pigmalion` en las dos, y
   `CATALOG_URL` con el catálogo de su tienda (sin él, el catálogo está apagado).
 - **Probarla o mostrarla en el navegador:** `?marca=pigmalion` al final de la
   dirección cambia los colores y el logo en ese navegador y los recuerda;
-  `?marca=bodega` vuelve a la propia.
+  `?marca=kubica` vuelve a la propia.
 
 ## Limitaciones a propósito (y el siguiente paso natural)
 
@@ -292,7 +295,7 @@ GitHub.
 | `SUPABASE_SERVICE_KEY` | Para guardar dos meses las fotos de remisiones y facturas en Supabase Storage (bucket privado `documentos`, se crea solo). La llave secreta del proyecto (`sb_secret_…`, Supabase → Settings → API Keys → Secret keys; también sirve la `service_role` de antes). Solo en Render, nunca en el repositorio. Sin ella, en el computador van a `backend/fotos-documentos` y en producción no se guardan. El Resumen muestra si se están guardando |
 | `SUPABASE_URL` | Opcional. La URL del proyecto (`https://….supabase.co`); si no se pone, se saca de `DATABASE_URL` |
 | `PHOTO_DAYS` | Opcional. Cuántos días se guardan esas fotos (por defecto 60, dos meses); después se borran solas |
-| `MARCA` | Opcional. La marca de los Excel: vacío o `bodega` la propia, `pigmalion` la de Pigmalion (la misma que `VITE_MARCA` del frontend, ver "Marca de cada empresa") |
+| `MARCA` | Opcional. La marca (nombre y colores de los Excel y los avisos): vacío o `kubica` la propia, `pigmalion` la de Pigmalion (la misma que `VITE_MARCA` del frontend, ver "Marca de cada empresa") |
 | `SKIP_AUTH` | Solo desarrollo: `true` entra sin iniciar sesión. Nunca en producción |
 
 En producción, `ADMIN_PASSWORD` y `REGISTRATION_CODE` deben ser distintos a

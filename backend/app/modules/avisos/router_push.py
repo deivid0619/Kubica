@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.modules.avisos import push
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_any_user
 
@@ -67,7 +68,7 @@ def unsubscribe(payload: EndpointIn, db: Session = Depends(get_db), user: models
 @router.post("/test")
 def test(payload: EndpointIn, db: Session = Depends(get_db), user: models.User = Depends(get_any_user)):
     sub = _mine(db, payload.endpoint, user)
-    ok = push.send(sub, {"title": "Bodega", "body": "Así te llegarán los avisos.", "url": "/", "tag": "prueba"},
+    ok = push.send(sub, {"title": settings.nombre_app, "body": "Así te llegarán los avisos.", "url": "/", "tag": "prueba"},
                    push._keys(db))
     if not ok:
         db.delete(sub)

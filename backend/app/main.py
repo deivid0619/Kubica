@@ -74,7 +74,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Bodega API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title=f"{settings.nombre_app} API", version="1.0.0", lifespan=lifespan)
 
 # el mismo cambio no se guarda dos veces (lo que se registro sin señal se
 # reintenta); va por dentro de CORS para que la respuesta repetida tambien lleve

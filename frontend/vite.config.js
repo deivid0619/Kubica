@@ -3,18 +3,22 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // La marca de esta instalacion (ver src/core/marca.js). VITE_MARCA=pigmalion
-// deja los colores, el logo y los iconos de Pigmalion; sin nada, la marca
-// propia de Bodega. Los iconos de una marca son public/<icono>-<marca>.<ext>.
+// deja el nombre, los colores, el logo y los iconos de Pigmalion; sin nada, la
+// marca propia: Kubica. Los iconos de una marca son public/<icono>-<marca>.<ext>.
+const PROPIA = 'kubica'
+const NOMBRES = { kubica: 'Kubica', pigmalion: 'Bodega' }
+
 function marca(id) {
   const icono = (file) => {
     const own = file.replace(/(\.\w+)$/, `-${id}$1`)
-    return id !== 'bodega' && existsSync(new URL(`./public${own}`, import.meta.url)) ? own : file
+    return id !== PROPIA && existsSync(new URL(`./public${own}`, import.meta.url)) ? own : file
   }
   return {
-    name: 'bodega-marca',
+    name: 'marca',
     transformIndexHtml: (html) => ['/favicon.svg', '/favicon-32.png', '/manifest.json', '/apple-touch-icon.png']
       .reduce((h, file) => h.replace(`"${file}"`, `"${icono(file)}"`), html)
-      .replaceAll('__MARCA__', id),
+      .replaceAll('__MARCA__', id)
+      .replaceAll('__NOMBRE__', NOMBRES[id] || NOMBRES[PROPIA]),
   }
 }
 
@@ -23,7 +27,7 @@ function marca(id) {
 // mezclaria la sesion y los datos de los dos en el navegador. strictPort: si
 // el puerto esta ocupado, Vite falla en vez de saltar a otro.
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), marca(loadEnv(mode, process.cwd(), '').VITE_MARCA || 'bodega')],
+  plugins: [react(), marca(loadEnv(mode, process.cwd(), '').VITE_MARCA || PROPIA)],
   server: {
     port: 5190,
     strictPort: true,

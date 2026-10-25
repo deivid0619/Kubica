@@ -62,22 +62,10 @@ export default function Icon({ name, size = 22, stroke = 1.9, className, ...rest
   )
 }
 
-// Marca de la app: 3 x 3 canastas y una encendida, "sabes exactamente donde
-// esta". Por debajo de 20 px, la version chica (la del favicon): 2 x 2 en una
-// grilla de 16, para que no se pierdan. Pigmalion conserva la suya.
-const CELLS = [4, 11.5, 19].flatMap((y, r) => [2.5, 10.5, 18.5].map((x, c) => ({ x, y, lit: r === 1 && c === 2 })))
-const SMALL_CELLS = [[2, 3], [9, 3], [2, 9], [9, 9]].map(([x, y]) => ({ x, y, lit: x === 9 && y === 9 }))
-
+// Marca de la app: una caja en 3D con la tapa encendida (Kubica). Por debajo
+// de 20 px, el mismo cubo con las uniones mas gruesas para que no se pierda.
+// Pigmalion conserva la suya: tres barras inclinadas.
 export function BrandMark({ size = 28 }) {
-  if (size < 20 && marca() !== 'pigmalion') {
-    return (
-      <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true">
-        {SMALL_CELLS.map(({ x, y, lit }) => (
-          <rect key={`${x}-${y}`} x={x} y={y} width="5" height="4" rx="1" style={lit ? { fill: 'var(--accent)' } : { fill: '#fff', fillOpacity: 0.4 }} />
-        ))}
-      </svg>
-    )
-  }
   if (marca() === 'pigmalion') {
     return (
       <svg viewBox="0 0 28 28" width={size} height={size} aria-hidden="true">
@@ -87,11 +75,12 @@ export function BrandMark({ size = 28 }) {
       </svg>
     )
   }
+  const seam = size < 20 ? 1.8 : 1.1 // la union entre las caras, del color de la barra
   return (
     <svg viewBox="0 0 28 28" width={size} height={size} aria-hidden="true">
-      {CELLS.map(({ x, y, lit }) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width="7" height="5.5" rx="1.4" style={lit ? { fill: 'var(--accent)' } : { fill: '#fff', fillOpacity: 0.28 }} />
-      ))}
+      <path d="M14 3l10.5 6L14 15 3.5 9z" strokeWidth={seam} strokeLinejoin="round" style={{ fill: 'var(--accent)', stroke: 'var(--ink)' }} />
+      <path d="M3.5 9L14 15v11.5L3.5 20.5z" strokeWidth={seam} strokeLinejoin="round" style={{ fill: '#fff', fillOpacity: 0.92, stroke: 'var(--ink)' }} />
+      <path d="M24.5 9L14 15v11.5l10.5-6z" strokeWidth={seam} strokeLinejoin="round" style={{ fill: '#fff', fillOpacity: 0.42, stroke: 'var(--ink)' }} />
     </svg>
   )
 }

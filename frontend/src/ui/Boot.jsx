@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrandMark } from './Icon'
+import { datosMarca } from '../core/marca'
 
 // La pantalla de carga (la misma de index.html, que se ve antes de que llegue
 // el codigo): la marca y una barra que avanza. Si tarda, dice por que: el
@@ -23,7 +24,7 @@ export default function Boot({ label = 'Abriendo…', variant }) {
       {variant !== 'page' && (
         <div className="boot-brand">
           <BrandMark size={40} />
-          <span className="boot-word">bodega</span>
+          <span className="boot-word">{datosMarca().nombre}</span>
         </div>
       )}
       <div className="boot-bar"><i /></div>

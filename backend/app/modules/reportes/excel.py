@@ -25,12 +25,12 @@ from app.modules.inventario import serializers as ser, service as inv
 
 # los colores y el nombre de cada marca (los mismos de frontend/src/core/marca.js)
 MARCAS = {
-    "bodega": dict(empresa="", ink="0B1220", accent="38B6FF", deep="1A8FE0", fog="F2F5F9", muted="626B7C"),
+    "kubica": dict(empresa="", ink="15171C", accent="F5B700", deep="A87600", fog="F6F3EC", muted="6A6458"),
     "pigmalion": dict(empresa="Pigmalion", ink="0B0B0B", accent="C0FF00", deep="6A9A00", fog="F3F6EF", muted="6B6F68"),
 }
-_M = MARCAS.get(settings.marca, MARCAS["bodega"])
+_M = MARCAS.get(settings.marca, MARCAS["kubica"])
 INK, ACCENT, ACCENT_DEEP, FOG, MUTED = _M["ink"], _M["accent"], _M["deep"], _M["fog"], _M["muted"]
-APP = f"Bodega {_M['empresa']}".strip()  # "Bodega" o "Bodega Pigmalion"
+APP = f"{settings.nombre_app} {_M['empresa']}".strip()  # "Kubica" o "Bodega Pigmalion"
 WHITE = "FFFFFF"
 INT, MONEY, DATE = "#,##0", '"$" #,##0', "dd/mm/yyyy hh:mm"
 SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "XXXL", "3XL", "4XL", "5XL"]
@@ -197,7 +197,7 @@ def inventory_workbook(db: Session, who: str) -> bytes:
     stamp = f"Generado el {_when(now)} · por {who}"
     wb = Workbook()
     wb.properties.title = f"Inventario · {APP}"
-    wb.properties.creator = "Bodega"
+    wb.properties.creator = settings.nombre_app
 
     # --- Inventario (una fila por talla) ---
     ws = wb.active

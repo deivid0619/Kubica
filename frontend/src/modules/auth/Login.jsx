@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { LINK_ERROR, keyFrom, useAuth } from '../../core/AuthContext'
 import { ApiError } from '../../core/api'
-import { marca } from '../../core/marca'
+import { datosMarca, marca } from '../../core/marca'
 import { BrandMark } from '../../ui/Icon'
 
 // el fondo del login, en el color de la marca: en Bodega una pared de canastas
@@ -87,7 +87,7 @@ export default function Login() {
       <div className="login-box">
         <div className="login-brand">
           <BrandMark size={38} />
-          <span className="brand-word">bodega</span>
+          <span className="brand-word">{datosMarca().nombre}</span>
         </div>
         <form onSubmit={submit}>
           {mode === 'register' && (

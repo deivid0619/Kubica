@@ -27,16 +27,22 @@ class Settings(BaseSettings):
     photos_dir: str = "fotos-documentos"
     # quien manda los avisos al celular (lo piden Google y Apple)
     vapid_subject: str = "https://pigmalionmoto.com"
-    # la marca de esta instalacion (colores y nombre de los Excel): "bodega"
-    # (la propia) o la de una empresa, p. ej. "pigmalion". La misma que
-    # VITE_MARCA en el frontend.
-    marca: str = "bodega"
+    # la marca de esta instalacion (nombre y colores de los Excel y avisos):
+    # "kubica" (la propia) o la de una empresa, p. ej. "pigmalion". La misma
+    # que VITE_MARCA en el frontend.
+    marca: str = "kubica"
     # SOLO DESARROLLO: si es true, todas las rutas se tratan como si hubiera
     # iniciado sesion el primer usuario admin, sin pedir login. Nunca poner
     # en true en produccion.
     skip_auth: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @property
+    def nombre_app(self) -> str:
+        """El nombre de la app en los avisos y el Excel: Kubica, o Bodega en la
+        instalacion de Pigmalion."""
+        return "Bodega" if self.marca == "pigmalion" else "Kubica"
 
     @property
     def cors_origin_list(self) -> list[str]:

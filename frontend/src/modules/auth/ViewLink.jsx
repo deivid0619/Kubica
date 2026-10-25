@@ -88,8 +88,8 @@ export default function ViewLink() {
   }
   const share = async (l) => {
     try {
-      const { empresa } = datosMarca()
-      await navigator.share({ title: 'Bodega · solo ver', text: `${l.name}: la bodega${empresa ? ` de ${empresa}` : ''}. Puedes ver todo, sin cambiar nada.`, url: urlOf(l) })
+      const { app, empresa } = datosMarca()
+      await navigator.share({ title: `${app} · solo ver`, text: `${l.name}: la bodega${empresa ? ` de ${empresa}` : ''}. Puedes ver todo, sin cambiar nada.`, url: urlOf(l) })
     } catch { /* se cerro sin compartir */ }
   }
 

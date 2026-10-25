@@ -5,6 +5,7 @@ import NavBar from './ui/NavBar'
 import NotificationBell from './modules/avisos/NotificationBell'
 import OfflineBar from './ui/OfflineBar'
 import Icon, { BrandMark } from './ui/Icon'
+import { datosMarca } from './core/marca'
 import Sheet, { SheetHeader } from './ui/Sheet'
 import Boot from './ui/Boot'
 import { useMovementNotifications } from './modules/avisos/useMovementNotifications'
@@ -42,7 +43,7 @@ function AccountMenu() {
   const doInstall = async () => {
     setOpen(false)
     if (install.canPrompt) {
-      if (await install.prompt()) showToast('Bodega quedó instalada en este dispositivo')
+      if (await install.prompt()) showToast(`${datosMarca().app} quedó instalada en este dispositivo`)
     } else {
       setIosHelp(true)
     }
@@ -110,9 +111,9 @@ function Shell() {
   return (
     <div className="app">
       <header className="topbar">
-        <Link to="/" className="brand" aria-label="Bodega, inicio">
+        <Link to="/" className="brand" aria-label={`${datosMarca().app}, inicio`}>
           <BrandMark size={26} />
-          <span className="brand-word">bodega</span>
+          <span className="brand-word">{datosMarca().nombre}</span>
         </Link>
         <div className="topbar-actions">
           {isViewer && (

@@ -31,7 +31,7 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
-      # la marca de los Excel: vacio = Bodega; "pigmalion" = la de Pigmalion
+      # la marca (Excel y avisos): vacio = Kubica; "pigmalion" = la de Pigmalion
       - key: MARCA
         sync: false
 
@@ -44,7 +44,7 @@ services:
     envVars:
       - key: VITE_API_URL
         sync: false
-      # colores, logo e iconos: vacio = Bodega; "pigmalion" = los de Pigmalion
+      # nombre, colores, logo e iconos: vacio = Kubica; "pigmalion" = los de Pigmalion
       - key: VITE_MARCA
         sync: false
     routes:

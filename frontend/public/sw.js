@@ -53,7 +53,7 @@ self.addEventListener('push', (event) => {
   } catch {
     d = { body: event.data ? event.data.text() : '' }
   }
-  event.waitUntil(self.registration.showNotification(d.title || 'Bodega', {
+  event.waitUntil(self.registration.showNotification(d.title || 'Kubica', {
     body: d.body || '',
     icon: '/icon-192.png',
     // el mismo tag reemplaza al aviso anterior en vez de apilarlos
