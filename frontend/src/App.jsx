@@ -75,18 +75,18 @@ function AccountMenu() {
       )}
       {iosHelp && (
         <Sheet modal onClose={() => setIosHelp(false)} label="Instalar la app">
-          <SheetHeader title="Instalar Bodega" subtitle="Queda como una app más, con su ícono y en pantalla completa." />
+          <SheetHeader title={`Instalar ${datosMarca().app}`} subtitle="Queda como una app más, con su ícono y en pantalla completa." />
           {install.ios ? (
             <ol className="install-steps">
               <li>Toca el botón <b>Compartir</b> de Safari (el cuadro con la flecha hacia arriba).</li>
               <li>Elige <b>Agregar a pantalla de inicio</b>.</li>
-              <li>Toca <b>Agregar</b>. El ícono de Bodega aparece con tus apps.</li>
+              <li>Toca <b>Agregar</b>. El ícono de {datosMarca().app} aparece con tus apps.</li>
             </ol>
           ) : (
             <ol className="install-steps">
               <li>Abre el menú del navegador (los tres puntos).</li>
               <li>Elige <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
-              <li>Confirma. El ícono de Bodega aparece con tus apps.</li>
+              <li>Confirma. El ícono de {datosMarca().app} aparece con tus apps.</li>
             </ol>
           )}
         </Sheet>

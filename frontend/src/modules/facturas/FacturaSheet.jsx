@@ -67,12 +67,17 @@ function StartStep({ onHave, onPedido, onAttach }) {
   )
 }
 
-function PickStep({ onFile, error, onBack }) {
+function PickStep({ onFile, onManual, error, onBack }) {
   return (
     <>
       <SheetHeader title="Descontar una factura" subtitle="Primero una foto de cerca, solo a la tabla de productos: así lee bien los códigos. La factura completa la fotografías después, para guardarla." />
       {error && <p className="form-err" role="alert">{error}</p>}
       <PhotoButtons onFile={onFile} />
+      {/* sin leer la factura: solo su foto como prueba, y el numero y las prendas a mano */}
+      <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 12 }} onClick={onManual}>
+        <Icon name="pencil" size={18} />Sin analizar la factura
+      </button>
+      <p className="field-hint">Solo le tomas la foto para guardarla, y escribes el número y las prendas a mano.</p>
       <details className="doc-help">
         <summary>Recomendaciones para usarla bien</summary>
         <ul>
@@ -318,7 +323,13 @@ function Body({ onDone }) {
   const [recordOnly, setRecordOnly] = useState(false) // ya se desconto por otro lado: solo el registro
   const [attach, setAttach] = useState(null) // el pedido al que se le anexa la factura
   const [saving, setSaving] = useState(false)
+  const [manual, setManual] = useState(false) // sin analizar la factura: las prendas se agregan a mano
+  const [q, setQ] = useState('')
+  const [flash, setFlash] = useState(null)
   const known = products || []
+  const inBodega = useMemo(() => new Map(known.map((p) => [p.sku, p])), [known])
+  // con lo de la reserva que no esta registrado en la bodega (tambien puede salir)
+  const bySku = useReserveOnly(inBodega)
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview) }, [preview])
 
@@ -369,6 +380,43 @@ function Body({ onDone }) {
   }
   // el numero, si no salio en la foto de cerca: de la foto completa
   const fillNumber = useCallback((n) => setNumber((cur) => (cur.trim() ? cur : n)), [])
+
+  // sin analizar la factura: cada prenda se escanea o se busca, como en el pedido
+  const startManual = () => {
+    setError('')
+    setRows([])
+    setReads([])
+    setNumber('')
+    setManual(true)
+    setStep('review')
+  }
+  const addManual = (p) => {
+    const had = rows.find((r) => r.sku === p.sku)
+    setRows((rs) => (rs.some((r) => r.sku === p.sku)
+      ? rs.map((r) => (r.sku === p.sku ? { ...r, qty: r.qty + 1 } : r))
+      : [...rs, { id: nextId++, code: p.sku, read: p.sku, sku: p.sku, product: p, how: 'manual', description: p.name, qty: 1, include: true }]))
+    setFlash({ text: `+1 · ${p.name}${p.size ? ` · ${p.size}` : ''}${had ? ` (van ${had.qty + 1})` : ''}`, at: Date.now() })
+  }
+  const onManualCode = async (raw) => {
+    const code = cleanCode(raw)
+    if (!code) return
+    try {
+      // una etiqueta con el codigo mal ya corregida la resuelve el servidor
+      const p = bySku.get(code) || await api.get(`/api/products/${encodeURIComponent(code)}`)
+      beep(true)
+      addManual(p)
+    } catch (e) {
+      beep(false)
+      setFlash({ err: true, at: Date.now(), text: e instanceof ApiError && e.status === 404 ? `${code}: no está en la bodega` : 'No hay conexión con el servidor.' })
+    }
+  }
+  const term = q.trim().toUpperCase()
+  const found = useMemo(() => {
+    if (!manual || term.length < 2) return []
+    const words = term.split(/\s+/)
+    const code = term.replace(/\s+/g, '')
+    return [...bySku.values()].filter((p) => p.sku.includes(code) || words.every((w) => p.name.includes(w))).slice(0, 6)
+  }, [manual, term, bySku])
 
   // la misma factura no se puede registrar dos veces
   useEffect(() => {
@@ -448,17 +496,20 @@ function Body({ onDone }) {
   if (step === 'attach' && attach) {
     return <AttachBody pedido={attach} onBack={() => setStep('start')} onDone={() => { onDone?.(); close() }} />
   }
-  if (step === 'pick') return <PickStep onFile={onFile} error={error} onBack={() => { setError(''); setStep('start') }} />
+  if (step === 'pick') return <PickStep onFile={(f) => { setManual(false); onFile(f) }} onManual={startManual} error={error} onBack={() => { setError(''); setStep('start') }} />
   if (step === 'reading') return <ReadingStep preview={preview} stage={stage} progress={progress} />
 
   return (
     <>
       <SheetHeader
         eyebrow={<div className="sheet-eyebrow"><span className="tag tag-out">{recordOnly ? 'Solo registro' : 'Salida por factura'}</span></div>}
-        title={recordOnly ? 'Revisa antes de guardar' : 'Revisa antes de descontar'}
-        subtitle={`${plural(rows.length, 'línea leída', 'líneas leídas')} · ${pending ? `${pending} sin incluir` : 'todas incluidas'}`}
+        title={manual ? 'Factura sin analizar' : recordOnly ? 'Revisa antes de guardar' : 'Revisa antes de descontar'}
+        subtitle={manual
+          ? 'Toma la foto de la factura para guardarla, escribe su número y escanea o busca las prendas.'
+          : `${plural(rows.length, 'línea leída', 'líneas leídas')} · ${pending ? `${pending} sin incluir` : 'todas incluidas'}`}
       />
-      <label className="field" style={{ marginTop: 0 }}>
+      {manual && <ProofPhoto file={proof} onChange={setProof} reads={0} />}
+      <label className="field" style={{ marginTop: manual ? 18 : 0 }}>
         <span className="field-label">Número de factura</span>
         <input className="input mono" value={number} onChange={(e) => setNumber(e.target.value.toUpperCase())} placeholder="Ej. FEV21830" />
       </label>
@@ -471,6 +522,30 @@ function Body({ onDone }) {
         <span>Solo registro<small>Ya descontaste estas prendas por otro lado: se guarda la factura y su foto sin descontar otra vez.</small></span>
         <button type="button" className="switch" role="switch" aria-checked={recordOnly} aria-label="Solo registro" onClick={toggleRecord} />
       </div>
+
+      {manual && (
+        <>
+          <ScanBox single onCode={onManualCode} flash={flash} hint="Escanea una prenda y toca «Escanear siguiente» para la próxima. Con un lector USB o Bluetooth: toca el campo y escanea." />
+          <div style={{ marginTop: 14 }}>
+            <SearchField value={q} onChange={setQ} placeholder="O busca la referencia o el código" />
+            {found.length > 0 && (
+              <div className="ref-results">
+                {found.map((p) => (
+                  <button key={p.sku} type="button" className="ref-result" onClick={() => { addManual(p); setQ('') }}>
+                    {p.image_url ? <img src={p.image_url} alt="" /> : null}
+                    <span className="ref-result-t">
+                      <b>{p.name}{p.size ? ` · ${p.size}` : ''}</b>
+                      <small><span className="mono">{p.sku}</span> · hay {outAvailable(p, outlet)}{inRes(p) ? ` + ${inRes(p)} en la reserva` : ''}</small>
+                    </span>
+                    <Icon name="plus" size={18} stroke={2.2} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {rows.length > 0 && <h3 className="h-sec">En la factura <small>{plural(rows.reduce((t, r) => t + r.qty, 0), 'prenda', 'prendas')}</small></h3>}
+        </>
+      )}
 
       <div className="doc-lines">
         {rows.map((r) => {
@@ -530,9 +605,9 @@ function Body({ onDone }) {
         })}
       </div>
 
-      <ReadMoreButton onFile={(f) => onFile(f, true)} />
+      {!manual && <ReadMoreButton onFile={(f) => onFile(f, true)} />}
 
-      <ProofPhoto file={proof} onChange={setProof} reads={reads.length} findNumber={number.trim() ? undefined : fillNumber} />
+      {!manual && <ProofPhoto file={proof} onChange={setProof} reads={reads.length} findNumber={number.trim() ? undefined : fillNumber} />}
       {notify.el}
 
       <div className="doc-footer">
@@ -545,7 +620,7 @@ function Body({ onDone }) {
         <button className="btn btn-lime btn-lg btn-block" disabled={!chosen.length || !number.trim() || !!dup || blocked || missingFrom > 0 || saving} onClick={confirm}>
           {saving ? 'Guardando…' : recordOnly ? `Guardar registro de ${plural(units, 'prenda', 'prendas')}` : `Descontar ${plural(units, 'prenda', 'prendas')}`}
         </button>
-        <button className="btn btn-quiet btn-block" style={{ marginTop: 8 }} onClick={() => { setRows([]); setReads([]); setProof(null); setStep('pick') }}>
+        <button className="btn btn-quiet btn-block" style={{ marginTop: 8 }} onClick={() => { setRows([]); setReads([]); setProof(null); setManual(false); setStep('pick') }}>
           Empezar de nuevo
         </button>
       </div>

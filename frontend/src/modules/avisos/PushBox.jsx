@@ -3,6 +3,7 @@ import { useInstall } from '../../core/install'
 import { currentSubscription, disablePush, enablePush, pushSupported, testPush } from './push'
 import { useToast } from '../../ui/ToastContext'
 import Icon from '../../ui/Icon'
+import { datosMarca } from '../../core/marca'
 
 // Recibir los avisos en este celular (aunque la app este cerrada)
 export default function PushBox({ prefs = {}, onState, intro = 'Te llegan aunque la app esté cerrada.' }) {
@@ -55,7 +56,7 @@ export default function PushBox({ prefs = {}, onState, intro = 'Te llegan aunque
           ? 'En iPhone, primero instala la app: Compartir → Agregar a pantalla de inicio. Después actívalos aquí.'
           : 'Este navegador no recibe avisos con la app cerrada.'}</span>
       )}
-      {push === 'blocked' && <span>Bloqueados para Bodega. Actívalos en los ajustes del navegador para este sitio.</span>}
+      {push === 'blocked' && <span>Bloqueados para {datosMarca().app}. Actívalos en los ajustes del navegador para este sitio.</span>}
       {push === 'off' && (
         <>
           <span>{intro}</span>
