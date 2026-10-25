@@ -63,10 +63,21 @@ export default function Icon({ name, size = 22, stroke = 1.9, className, ...rest
 }
 
 // Marca de la app: 3 x 3 canastas y una encendida, "sabes exactamente donde
-// esta". Pigmalion conserva la suya: tres barras inclinadas.
+// esta". Por debajo de 20 px, la version chica (la del favicon): 2 x 2 en una
+// grilla de 16, para que no se pierdan. Pigmalion conserva la suya.
 const CELLS = [4, 11.5, 19].flatMap((y, r) => [2.5, 10.5, 18.5].map((x, c) => ({ x, y, lit: r === 1 && c === 2 })))
+const SMALL_CELLS = [[2, 3], [9, 3], [2, 9], [9, 9]].map(([x, y]) => ({ x, y, lit: x === 9 && y === 9 }))
 
 export function BrandMark({ size = 28 }) {
+  if (size < 20 && marca() !== 'pigmalion') {
+    return (
+      <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true">
+        {SMALL_CELLS.map(({ x, y, lit }) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="5" height="4" rx="1" style={lit ? { fill: 'var(--accent)' } : { fill: '#fff', fillOpacity: 0.4 }} />
+        ))}
+      </svg>
+    )
+  }
   if (marca() === 'pigmalion') {
     return (
       <svg viewBox="0 0 28 28" width={size} height={size} aria-hidden="true">

@@ -12,7 +12,7 @@ function marca(id) {
   }
   return {
     name: 'bodega-marca',
-    transformIndexHtml: (html) => ['/favicon.svg', '/manifest.json', '/apple-touch-icon.png']
+    transformIndexHtml: (html) => ['/favicon.svg', '/favicon-32.png', '/manifest.json', '/apple-touch-icon.png']
       .reduce((h, file) => h.replace(`"${file}"`, `"${icono(file)}"`), html)
       .replaceAll('__MARCA__', id),
   }
