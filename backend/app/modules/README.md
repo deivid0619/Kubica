@@ -13,7 +13,7 @@ Lo común a todos está en `app/core/`: configuración, base de datos, sesión, 
 
 | Módulo | Qué hace | Rutas |
 |---|---|---|
-| `auth` | Entrar, crear cuenta, el usuario actual y los enlaces "solo ver" (uno por persona) | `/api/auth/*` |
+| `auth` | Entrar, crear cuenta, el usuario actual y los enlaces "solo ver" (uno por persona); el equipo: rol y quitar o devolver el acceso (`router_users.py`) | `/api/auth/*`, `/api/users/*` |
 | `inventario` | Las prendas (un código por talla), cuánto hay en cada ubicación, movimientos, deshacer y códigos de etiqueta mal impresos | `/api/products/*`, `/api/movements/*` |
 | `bodega` | El cuarto y sus muebles en 3D, las ubicaciones y el outlet | `/api/layout/*` |
 | `reserva` | La bodega de reserva: guardar, escanear, llevar a la bodega o despachar | `/api/reserve/*` |
@@ -25,5 +25,6 @@ Lo común a todos está en `app/core/`: configuración, base de datos, sesión, 
 | `reportes` | Qué pedir, flujo semanal, lo que no se mueve, valor, lo que más sale, exportar y datos de prueba | `/api/reports/*` |
 | `catalogo` | La tienda en línea (precios, fotos y códigos parecidos) | `/api/catalog/*` |
 | `avisos` | Avisos al celular y avisos para los enlaces "solo ver" | `/api/push/*`, `/api/notices/*` |
+| `ajustes` | Configuración: nombre de la empresa, tallas, tienda en línea y código para unirse (lo guardado manda sobre las variables del servidor) | `/api/settings` |
 
 Las rutas son las mismas de antes de ordenar el código por módulos, así que la app publicada no nota el cambio.

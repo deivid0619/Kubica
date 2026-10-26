@@ -113,8 +113,9 @@ La primera vez que arranca el backend, crea automáticamente:
 Cualquier persona nueva se registra con el **código de invitación**
 (`REGISTRATION_CODE`, por defecto `bodega`) y entra como operador
 (puede escanear y consultar, no puede editar la distribución ni borrar
-código). Para dar permisos de administrador a alguien más, cámbiale el
-`role` a `admin` directamente en la base de datos.
+código). Un administrador lo cambia en **Configuración > Equipo > Código
+para unirse**, y en **Personas** hace administrador a alguien más o le
+quita el acceso (sin borrar su historial; nunca al último administrador).
 
 ## Desarrollo local sin Docker
 
@@ -179,7 +180,8 @@ computador). Son dos cuentas gratis y ~10 minutos.
      `python -c "import secrets; print(secrets.token_hex(32))"` — nunca
      lo subas al repo, solo pégalo aquí).
    - `REGISTRATION_CODE`: la palabra que van a usar tus compañeros para
-     registrarse (cámbiala del valor por defecto `bodega`).
+     registrarse (cámbiala del valor por defecto `bodega`). Después se
+     puede cambiar desde la app, en Configuración > Equipo.
    - `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME`: tu cuenta de
      administrador real. **No dejes `cambiar123`.**
    - `CORS_ORIGINS`: déjalo vacío por ahora, lo completas en el paso 5.
@@ -220,7 +222,8 @@ suya sin tocar pantallas:
 - **Elegir la marca de una instalación:** `VITE_MARCA` en el frontend y
   `MARCA` en el backend (en Render, en el Environment de cada servicio).
   Vacío: Kubica. La instalación de Pigmalion lleva `pigmalion` en las dos, y
-  `CATALOG_URL` con el catálogo de su tienda (sin él, el catálogo está apagado).
+  `CATALOG_URL` con el catálogo de su tienda (sin él, el catálogo está apagado;
+  también se conecta desde Configuración > Tu empresa > Tienda en línea).
 - **Probarla o mostrarla en el navegador:** `?marca=pigmalion` al final de la
   dirección cambia los colores y el logo en ese navegador y los recuerda;
   `?marca=kubica` vuelve a la propia.
@@ -255,7 +258,7 @@ backend/
                           permisos, migraciones y datos iniciales
     modules/              un modulo por carpeta (ver modules/README.md):
       auth/ inventario/ bodega/ reserva/ documentos/ remisiones/ facturas/
-      conteo/ despacho/ reportes/ catalogo/ avisos/
+      conteo/ despacho/ reportes/ catalogo/ avisos/ ajustes/
                           cada uno con router.py (rutas), models.py (tablas),
                           schemas.py (datos) y service.py si tiene logica propia
     models.py, schemas.py reunen las tablas y los datos de todos los modulos
@@ -272,7 +275,7 @@ frontend/
     modules/              las mismas partes que el servidor (ver modules/README.md):
                           bodega (visor 3D), inventario, escaneo, remisiones,
                           facturas, documentos, conteo, reserva, despacho,
-                          resumen, reportes, avisos, auth
+                          resumen, reportes, avisos, configuracion, auth
     styles/global.css     estilos generales (cada modulo puede traer los suyos)
 ```
 
@@ -287,10 +290,10 @@ GitHub.
 | `DATABASE_URL` | Base de datos: `sqlite:///./bodega.db` en local, la de Supabase (Postgres) en producción |
 | `SECRET_KEY` | Firma las sesiones. Genera una propia: `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Cuánto dura una sesión abierta (480 = 8 horas) |
-| `REGISTRATION_CODE` | Código que se pide al crear una cuenta, para que no se registre cualquiera |
+| `REGISTRATION_CODE` | Código que se pide al crear una cuenta, para que no se registre cualquiera. Es el de arranque: si un administrador lo cambia en Configuración, manda el de la app |
 | `ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD` | Administrador que se crea solo la primera vez que arranca la API |
 | `CORS_ORIGINS` | Dominios del frontend que pueden llamar a la API, separados por coma |
-| `CATALOG_URL` | Opcional. Catálogo público de la tienda (Shopify) para llenar nombre, talla, foto y precio de un código nuevo; sin él, apagado. El de Pigmalion: `https://pigmalionmoto.com/products.json` |
+| `CATALOG_URL` | Opcional. Catálogo público de la tienda (Shopify) para llenar nombre, talla, foto y precio de un código nuevo; sin él, apagado. El de Pigmalion: `https://pigmalionmoto.com/products.json`. Es el de arranque: la tienda que se guarde en Configuración (o quitarla) manda sobre esta |
 | `VAPID_SUBJECT` | Opcional. Quién firma los avisos al celular (por defecto https://pigmalionmoto.com) |
 | `SUPABASE_SERVICE_KEY` | Para guardar dos meses las fotos de remisiones y facturas en Supabase Storage (bucket privado `documentos`, se crea solo). La llave secreta del proyecto (`sb_secret_…`, Supabase → Settings → API Keys → Secret keys; también sirve la `service_role` de antes). Solo en Render, nunca en el repositorio. Sin ella, en el computador van a `backend/fotos-documentos` y en producción no se guardan. El Resumen muestra si se están guardando |
 | `SUPABASE_URL` | Opcional. La URL del proyecto (`https://….supabase.co`); si no se pone, se saca de `DATABASE_URL` |

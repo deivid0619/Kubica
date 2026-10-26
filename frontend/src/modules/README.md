@@ -29,5 +29,6 @@ src/
 | `resumen` | Resumen, su índice, el estado de la tienda y "Empezar de cero" |
 | `reportes` | Reportes (`Reports`) |
 | `avisos` | La campana: avisos al celular (`PushBox`, `push`), avisos para los enlaces (`Notices`) y avisos en pantalla |
+| `configuracion` | Configuración (`Settings`): tu empresa (`Empresa`: nombre, tallas y tienda), equipo (`Personas`: rol, acceso y código para unirse), apariencia y lo que se movió del Resumen |
 
 Un módulo puede usar piezas de otro (por ejemplo, la remisión usa `ScanBox` de escaneo). Cada README dice cuáles usa.
