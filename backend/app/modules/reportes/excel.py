@@ -157,8 +157,10 @@ def _bars(ws, col: str, first: int, last: int, color: str = ACCENT_DEEP) -> None
 
 
 def _save(wb: Workbook, app: str) -> bytes:
+    # en el pie de pagina "&" es un codigo de Excel: "M&R" va como "M&&R"
+    footer = app.replace("&", "&&")
     for ws in wb.worksheets:
-        ws.oddFooter.center.text = f"{app} · página &P de &N"
+        ws.oddFooter.center.text = f"{footer} · página &P de &N"
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()

@@ -31,9 +31,12 @@ def change(user_id: int, payload: schemas.UserPatchIn, db: Session = Depends(get
     role = payload.role or user.role
     active = user.active if payload.active is None else payload.active
     if user.role == "admin" and user.active and not (role == "admin" and active):
-        others = (db.query(models.User)
-                  .filter(models.User.role == "admin", models.User.active.is_(True), models.User.id != user.id).count())
-        if not others:
+        # bloquea a los administradores activos hasta guardar: si dos se
+        # quitan el uno al otro al mismo tiempo, el segundo ve que ya no hay otro
+        admins = (db.query(models.User.id)
+                  .filter(models.User.role == "admin", models.User.active.is_(True))
+                  .order_by(models.User.id).with_for_update().all())
+        if not any(a.id != user.id for a in admins):
             raise HTTPException(status.HTTP_409_CONFLICT, f"{settings.nombre_app} necesita al menos un administrador.")
     user.role, user.active = role, active
     db.commit()

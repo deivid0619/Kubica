@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api, ApiError } from '../../core/api'
 import { revalidate } from '../../core/useApi'
+import { useAuth } from '../../core/AuthContext'
 import { useToast } from '../../ui/ToastContext'
 import { useConfirm } from '../../ui/ConfirmContext'
 import Icon from '../../ui/Icon'
@@ -52,6 +53,7 @@ const ASK = {
   operator: (p) => ({ title: `¿Quitarle lo de administrador a ${p.name}?`, body: 'Sigue entrando como operador: registra y consulta, pero no cambia la configuración.', confirmLabel: 'Sí, quitarlo' }),
   off: (p) => ({ title: `¿Quitarle el acceso a ${p.name}?`, body: 'No podrá entrar y su sesión se cierra. Lo que registró se queda en el historial con su nombre. Se puede devolver.', confirmLabel: 'Quitar acceso' }),
   on: (p) => ({ title: `¿Devolverle el acceso a ${p.name}?`, body: 'Vuelve a entrar con su correo y su contraseña de siempre.', confirmLabel: 'Devolver', danger: false }),
+  self: () => ({ title: '¿Dejar de ser administrador?', body: 'Sigues entrando como operador. Para volver a serlo, otro administrador te lo devuelve.', confirmLabel: 'Sí, dejarlo' }),
 }
 
 const DONE = {
@@ -64,17 +66,26 @@ const DONE = {
 export default function PersonasSheet({ people, me, onPeople, onClose }) {
   const showToast = useToast()
   const confirm = useConfirm()
+  const { user, updateUser } = useAuth()
   const [busy, setBusy] = useState(false)
   const active = people.filter((p) => p.active)
   const off = people.filter((p) => !p.active)
 
   const change = async (p, cambio) => {
     const kind = cambio.role || (cambio.active ? 'on' : 'off')
-    if (!(await confirm(ASK[kind](p)))) return
+    const self = p.id === me && kind === 'operator'
+    if (!(await confirm(ASK[self ? 'self' : kind](p)))) return
     setBusy(true)
     try {
       const saved = await api.patch(`/api/users/${p.id}`, cambio)
       onPeople(people.map((x) => (x.id === saved.id ? saved : x)))
+      if (self) {
+        // ya no es administrador: Configuracion y el resto de la app cambian de una
+        updateUser({ ...user, role: saved.role })
+        showToast('Ahora eres operador')
+        onClose()
+        return
+      }
       showToast(DONE[kind](p))
     } catch (e) {
       showToast(e instanceof ApiError ? e.message : 'No se pudo cambiar. Revisa la conexión.', 'err')

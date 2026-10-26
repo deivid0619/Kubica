@@ -23,6 +23,14 @@ class AjustesIn(BaseModel):
     # el que pide la app al crear cuenta; el de antes deja de servir
     codigo_registro: Annotated[str, StringConstraints(strip_whitespace=True, min_length=4, max_length=40)] | None = None
 
+    @field_validator("empresa_nombre", "tallas", "codigo_registro")
+    @classmethod
+    def _sin_caracteres_raros(cls, v):
+        # un caracter de control (de un pegado raro) no se puede escribir en el Excel
+        if v is not None and any(re.search(r"[\x00-\x1f\x7f]", t) for t in (v if isinstance(v, list) else [v])):
+            raise ValueError("Tiene caracteres que no se pueden usar.")
+        return v
+
     @field_validator("tallas")
     @classmethod
     def _sin_repetidas(cls, v):

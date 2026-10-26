@@ -3,6 +3,7 @@ remisiones y la tienda en linea. Cualquier sesion los lee; solo un
 administrador los cambia. Lo guardado manda sobre las variables del servidor."""
 import io
 import os
+import zipfile
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test_bodega.db")
 os.environ.setdefault("ADMIN_EMAIL", "admin@test.com")
@@ -86,7 +87,9 @@ def test_invalid_tallas():
         admin = _admin(client)
         try:
             for bad in ({"tallas": []}, {"tallas": [str(i) for i in range(21)]}, {"tallas": ["M", "m"]},
-                        {"tallas": ["MUYLARGA9"]}, {"catalogo_url": "ftp://tienda"}, {"empresa_nombre": "x" * 61}):
+                        {"tallas": ["MUYLARGA9"]}, {"catalogo_url": "ftp://tienda"}, {"empresa_nombre": "x" * 61},
+                        # un caracter de control rompe el Excel
+                        {"empresa_nombre": "Uno\x01Dos"}, {"tallas": ["M\x07"]}, {"codigo_registro": "cod\x00igo"}):
                 assert client.put("/api/settings", headers=admin, json=bad).status_code == 422, bad
             assert client.get("/api/settings", headers=admin).json()["tallas"] == DEFAULT_TALLAS
         finally:
@@ -124,5 +127,20 @@ def test_excel_uses_empresa():
             wb = load_workbook(io.BytesIO(r.content))
             assert "Distribuidora Uno" in wb.properties.title
             assert "Distribuidora Uno" in wb.worksheets[0].oddFooter.center.text
+        finally:
+            _reset()
+
+
+def test_excel_footer_with_ampersand():
+    # en el pie de pagina "&" es un codigo de Excel: "M&R" no se puede partir
+    with TestClient(app) as client:
+        admin = _admin(client)
+        try:
+            client.put("/api/settings", headers=admin, json={"empresa_nombre": "Textiles M&R"})
+            r = client.get("/api/reports/inventory.xlsx", headers=admin)
+            # se mira lo escrito: openpyxl al leer toma "&&R" como "a la derecha", Excel no
+            with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+                sheet = z.read("xl/worksheets/sheet1.xml").decode()
+            assert f"&amp;CTextiles M&amp;&amp;R · {settings.nombre_app} · página" in sheet
         finally:
             _reset()

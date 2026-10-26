@@ -68,9 +68,11 @@ export function AuthProvider({ children }) {
   // el acceso, la pantalla de entrada se lo dice.
   const expired = useCallback(async (reason) => {
     if (reentering.current) return
-    if (reason === NO_ACCESS) noteError({ message: reason })
     const key = storedKey()
     if (!key) {
+      // solo si tenia sesion: al intentar entrar, el aviso ya sale en el
+      // formulario y guardarlo lo dejaria pegado en la pantalla de entrada
+      if (reason === NO_ACCESS && localStorage.getItem(STORAGE_KEY)) noteError({ message: reason })
       clearSession()
       return
     }
@@ -87,6 +89,12 @@ export function AuthProvider({ children }) {
       setLinking(false)
     }
   }, [clearSession, enterView])
+
+  // un cambio en la propia cuenta (Configuracion > Equipo) se ve de una
+  const updateUser = useCallback((u) => {
+    setUser(u)
+    writeUser(u)
+  }, [])
 
   // salir a proposito: tambien se olvida el enlace
   const logout = useCallback(() => {
@@ -180,6 +188,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     enterView,
+    updateUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
