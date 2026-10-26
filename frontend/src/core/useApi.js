@@ -116,6 +116,11 @@ export function usePolling(path, { interval = 6000 } = {}) {
   return { data: e.data, error: e.error, loading: e.data == null && !e.error, reload: () => fetchPath(path) }
 }
 
+// los ajustes de la empresa (Configuracion > Tu empresa)
+export function useAjustes() {
+  return usePolling('/api/settings', { interval: 60000 })
+}
+
 export function useLayout() {
   return usePolling('/api/layout', { interval: 30000 })
 }

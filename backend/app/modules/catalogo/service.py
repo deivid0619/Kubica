@@ -22,6 +22,23 @@ SIZE_OPTIONS = {"TALLA", "SIZE", "TAMAÑO", "TAMANO"}
 
 _lock = threading.Lock()
 _cache: dict = {"at": 0.0, "items": {}, "error": None, "ok_at": None}
+_saved: dict = {"url": None}  # la tienda guardada en Configuracion (None: la de CATALOG_URL)
+
+
+def current_url() -> str:
+    """De donde se lee el catalogo: lo guardado en Configuracion manda sobre
+    la variable del servidor; vacia, no hay catalogo."""
+    return settings.catalog_url if _saved["url"] is None else _saved["url"]
+
+
+def set_url(url: str | None) -> None:
+    """Cambiar la tienda (None vuelve a la del servidor). Lo leido de la
+    anterior se olvida."""
+    with _lock:
+        before = current_url()
+        _saved["url"] = url
+        if current_url() != before:
+            _cache.update(at=0.0, items={}, error=None, ok_at=None)
 
 
 def _thumb(url: str | None, width: int = 400) -> str | None:
@@ -60,9 +77,10 @@ def parse(products: list[dict]) -> dict[str, dict]:
 
 def _fetch() -> list[dict]:
     out: list[dict] = []
+    url = current_url()
     with httpx.Client(timeout=8, headers={"User-Agent": "Bodega-Pigmalion/1.0"}, follow_redirects=True) as client:
         for page in range(1, MAX_PAGES + 1):
-            r = client.get(settings.catalog_url, params={"limit": 250, "page": page})
+            r = client.get(url, params={"limit": 250, "page": page})
             r.raise_for_status()
             batch = r.json().get("products") or []
             out.extend(batch)
@@ -74,7 +92,7 @@ def _fetch() -> list[dict]:
 def items(fetch: bool = True) -> dict[str, dict]:
     """El catalogo por codigo. Con fetch=False no sale a internet: devuelve lo
     que ya este en memoria (para usarlo dentro de una transaccion)."""
-    if not settings.catalog_url:
+    if not current_url():
         return {}
     if not fetch or time.time() < _cache["at"]:
         return _cache["items"]
@@ -168,7 +186,7 @@ def search(q: str, limit: int = 8) -> list[dict]:
 
 def status() -> dict:
     """Como esta la conexion con la tienda (para mostrarlo en la app)."""
-    return {"enabled": bool(settings.catalog_url), "codes": len(_cache["items"]), "error": _cache["error"],
+    return {"enabled": bool(current_url()), "codes": len(_cache["items"]), "error": _cache["error"],
             "ok_at": _cache["ok_at"]}
 
 
@@ -183,5 +201,5 @@ def refresh() -> dict:
 def warm() -> None:
     """Al arrancar el servidor (en Render se duerme y se despierta), la tienda
     se lee de una vez en segundo plano: el primer escaneo ya la encuentra."""
-    if settings.catalog_url:
+    if current_url():
         threading.Thread(target=items, daemon=True).start()

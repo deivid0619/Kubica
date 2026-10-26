@@ -2,9 +2,8 @@
 // tienda) y las filas de tallas de cada una. Sin pantalla: se puede llevar a
 // otra app tal cual.
 import { sizeRank } from '../../core/utils'
+import { tallas } from '../../core/tallas'
 
-// la plantilla de remision de Pigmalion trae estas tallas
-export const TEMPLATE = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
 export const norm = (s) => String(s || '').toUpperCase().replace(/\s+/g, '')
 export const localToday = () => {
   const d = new Date()
@@ -36,8 +35,9 @@ export function buildRefs(products, reserve) {
 let nextId = 1
 export const blockId = () => nextId++
 export const newRow = (size, info) => ({ size, sku: info?.sku || null, have: info?.have || 0, inReserve: info?.reserva || 0, qty: 0, pending: 0, code: '' })
+// una referencia nueva trae las tallas de la empresa (Configuracion)
 export const rowsOf = (ref) => (ref.isNew
-  ? TEMPLATE.map((s) => newRow(s))
+  ? tallas().map((s) => newRow(s))
   : [...ref.sizes.values()].sort((a, b) => sizeRank(a.size) - sizeRank(b.size)).map((s) => newRow(s.size, s)))
 
 // una referencia de la tienda con todas sus tallas (y lo que ya hay de cada una)

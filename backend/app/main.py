@@ -15,11 +15,12 @@ from app.core.database import Base, SessionLocal, engine
 from app.core.idempotency import Idempotency
 from app.core.migrations import backfill_stock, ensure_columns, purge_old_photos, remove_sample_product, table_bins, table_sides
 from app.core.seed import seed
+from app.modules.ajustes import router as ajustes, service as ajustes_service
 from app.modules.auth import router as auth
 from app.modules.avisos import router as avisos, router_push as avisos_push
 from app.modules.bodega import router as bodega
 from app.modules.catalogo import router as catalogo
-from app.modules.catalogo.service import warm as warm_catalog
+from app.modules.catalogo import service as catalog_service
 from app.modules.conteo import router as conteo
 from app.modules.despacho import router as despacho
 from app.modules.documentos import router as documentos
@@ -64,13 +65,15 @@ async def lifespan(app: FastAPI):
         table_bins(db)
         table_sides(db)
         remove_sample_product(db)
+        # la tienda guardada en Configuracion (si no hay, la de CATALOG_URL)
+        catalog_service.set_url(ajustes_service.tienda_guardada(db))
         try:
             purge_old_photos(db)  # las fotos de mas de dos meses
         except Exception:
             pass
     finally:
         db.close()
-    warm_catalog()
+    catalog_service.warm()
     yield
 
 
@@ -90,7 +93,7 @@ app.add_middleware(
 
 # cada modulo trae sus rutas (ver app/modules/README.md)
 for module in (auth, bodega, productos, movimientos, reportes, reserva, documentos, remisiones, facturas, conteo,
-               despacho, catalogo, avisos_push, avisos):
+               despacho, catalogo, avisos_push, avisos, ajustes):
     app.include_router(module.router)
 
 

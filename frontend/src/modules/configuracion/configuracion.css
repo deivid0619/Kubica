@@ -25,3 +25,13 @@ button.set-row:active{background:var(--fog-2)}
 .set-prefs .menu-check{padding:12px 2px;border-top:1px solid var(--line)}
 .set-prefs .menu-check:first-child{border-top:0}
 .set-prefs .menu-note{padding:8px 2px 4px}
+/* Tu empresa: las tallas como fichas que se quitan con un toque */
+.set-tallas{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.set-talla{font-family:var(--mono);font-weight:500;gap:6px;padding:0 12px}
+.set-talla svg{color:var(--muted)}
+.set-add{display:flex;gap:8px}
+.set-add .input{flex:1;min-width:0}
+.set-err{color:var(--red)}
+.set-note{margin:14px 0 0;font-size:13px;line-height:1.4;color:var(--muted)}
+.set-base{margin-top:10px;padding-left:0;color:var(--accent-deep)}
+.set-store{margin-top:14px}

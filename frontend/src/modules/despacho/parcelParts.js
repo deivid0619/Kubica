@@ -2,9 +2,6 @@
 // por talla (prendas que no son del inventario). Sin pantalla.
 import { sizeRank } from '../../core/utils'
 
-// las tallas de la plantilla de Pigmalion, para contar
-export const SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
-
 const pad = (n) => String(n).padStart(2, '0')
 const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 export const dayFrom = (days, now = new Date()) => {

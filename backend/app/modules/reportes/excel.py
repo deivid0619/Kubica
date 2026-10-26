@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.core.config import settings
+from app.modules.ajustes import service as ajustes
 from app.modules.bodega.logic import DISPATCH
 from app.modules.catalogo import service as catalog
 from app.modules.inventario import serializers as ser, service as inv
@@ -54,6 +55,13 @@ def size_rank(size: str) -> float:
         return 500
 
 
+def app_name(db: Session) -> str:
+    """El nombre en los titulos y al pie: con la empresa de Configuracion si
+    la tiene ("Distribuidora Uno · Kubica")."""
+    empresa = ajustes.ajustes(db)["empresa_nombre"]
+    return f"{empresa} · {settings.nombre_app}" if empresa else APP
+
+
 def _when(now: datetime) -> str:
     hour = now.strftime("%I:%M").lstrip("0")
     return f"{now.day} de {MONTHS[now.month - 1]} de {now.year}, {hour} {'a. m.' if now.hour < 12 else 'p. m.'}"
@@ -61,7 +69,7 @@ def _when(now: datetime) -> str:
 
 def _store_url(handle: str) -> str | None:
     """El enlace a la prenda en la tienda (solo si el catalogo trae su handle)."""
-    base = re.sub(r"/products\.json.*$", "", settings.catalog_url or "")
+    base = re.sub(r"/products\.json.*$", "", catalog.current_url() or "")
     return f"{base}/products/{handle}" if base and handle and re.fullmatch(r"[a-z0-9][a-z0-9-]*", handle) else None
 
 
@@ -135,7 +143,6 @@ def _print(ws, header_row: int, landscape: bool = True) -> None:
     ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
     ws.print_title_rows = f"{header_row}:{header_row}"
-    ws.oddFooter.center.text = f"{APP} · página &P de &N"
 
 
 def _status_colors(ws, col: str, first: int, last: int) -> None:
@@ -149,7 +156,9 @@ def _bars(ws, col: str, first: int, last: int, color: str = ACCENT_DEEP) -> None
         start_type="num", start_value=0, end_type="max", color=color, showValue=True))
 
 
-def _save(wb: Workbook) -> bytes:
+def _save(wb: Workbook, app: str) -> bytes:
+    for ws in wb.worksheets:
+        ws.oddFooter.center.text = f"{app} · página &P de &N"
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()
@@ -195,8 +204,9 @@ def inventory_workbook(db: Session, who: str) -> bytes:
     rows = data["rows"]
     now = datetime.now(ser.BOGOTA)
     stamp = f"Generado el {_when(now)} · por {who}"
+    app = app_name(db)
     wb = Workbook()
-    wb.properties.title = f"Inventario · {APP}"
+    wb.properties.title = f"Inventario · {app}"
     wb.properties.creator = settings.nombre_app
 
     # --- Inventario (una fila por talla) ---
@@ -299,9 +309,9 @@ def inventory_workbook(db: Session, who: str) -> bytes:
 
     # --- Resumen (primera hoja) ---
     wsum = wb.create_sheet("Resumen", 0)
-    _summary(wsum, rows, by_ref, items, stamp)
+    _summary(wsum, rows, by_ref, items, stamp, app)
     wb.active = 0
-    return _save(wb)
+    return _save(wb, app)
 
 
 def _needs_sheet(ws, rows: list[dict], stamp: str) -> None:
@@ -322,8 +332,8 @@ def _needs_sheet(ws, rows: list[dict], stamp: str) -> None:
     _print(ws, 4)
 
 
-def _summary(ws, rows: list[dict], by_ref: dict, reserve_items: list, stamp: str) -> None:
-    _title(ws, f"Inventario · {APP}", stamp, 4)
+def _summary(ws, rows: list[dict], by_ref: dict, reserve_items: list, stamp: str, app: str) -> None:
+    _title(ws, f"Inventario · {app}", stamp, 4)
     priced = [r for r in rows if r["price"]]
     kpis = [
         ("Referencias", len(by_ref), INT),
@@ -390,12 +400,13 @@ def _summary(ws, rows: list[dict], by_ref: dict, reserve_items: list, stamp: str
 def needs_workbook(db: Session, who: str) -> bytes:
     """Solo lo que hay que pedir (el boton "Descargar" de Por reponer)."""
     rows = _inventory_rows(db)["rows"]
+    app = app_name(db)
     wb = Workbook()
-    wb.properties.title = f"Por pedir · {APP}"
+    wb.properties.title = f"Por pedir · {app}"
     ws = wb.active
     ws.title = "Por pedir"
     _needs_sheet(ws, rows, f"Generado el {_when(datetime.now(ser.BOGOTA))} · por {who}")
-    return _save(wb)
+    return _save(wb, app)
 
 
 TYPE = {"in": "Entrada", "out": "Salida", "set": "Conteo", "new": "Registro nuevo", "move": "Traslado"}
@@ -404,8 +415,9 @@ TYPE = {"in": "Entrada", "out": "Salida", "set": "Conteo", "new": "Registro nuev
 def movements_workbook(db: Session, who: str, limit: int = 5000) -> bytes:
     names = ser.loc_names(db)
     moves = db.query(models.Movement).order_by(models.Movement.id.desc()).limit(limit).all()
+    app = app_name(db)
     wb = Workbook()
-    wb.properties.title = f"Historial · {APP}"
+    wb.properties.title = f"Historial · {app}"
     ws = wb.active
     ws.title = "Historial"
     h = ["Fecha", "Tipo", "Referencia", "Talla", "Código", "Cambio", "Antes", "Después", "Ubicación", "Hacia", "Nota", "Usuario"]
@@ -449,4 +461,4 @@ def movements_workbook(db: Session, who: str, limit: int = 5000) -> bytes:
     wd.column_dimensions["A"].width = 13
     wd.freeze_panes = "B5"
     _print(wd, 4, landscape=False)
-    return _save(wb)
+    return _save(wb, app)

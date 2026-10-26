@@ -13,3 +13,4 @@ from app.modules.reserva.schemas import ReserveItemOut, ReserveItemCreateIn, Res
 from app.modules.reportes.schemas import NeedOut, WeekFlowOut, DeadOut, ValueOut, TopOut  # noqa: F401
 from app.modules.catalogo.schemas import CatalogItemOut, CatalogStatusOut, CatalogNearOut, CatalogSizeOut, CatalogProductOut  # noqa: F401
 from app.modules.despacho.schemas import DispatchLineIn, DispatchSendIn, DispatchSendOut, DispatchOut, ParcelKind, ParcelIn, ParcelUpdateIn, ParcelOut  # noqa: F401
+from app.modules.ajustes.schemas import AjustesOut, AjustesIn  # noqa: F401

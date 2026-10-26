@@ -13,7 +13,8 @@ import Icon from '../../ui/Icon'
 import LocationPicker from '../../ui/LocationPicker'
 import { Empty, Stepper, plural } from '../../ui/Bits'
 import { downloadPhoto } from '../documentos/docPhotos'
-import { SIZES, dayFrom, groupItems, itemsTotal, reminderOf } from './parcelParts'
+import { dayFrom, groupItems, itemsTotal, reminderOf } from './parcelParts'
+import { tallas } from '../../core/tallas'
 
 // Lo que esta de paso sin ser inventario: una caja suelta, una canasta, una
 // bolsa... con de quien es y que hacer con ella. No suma a la bodega ni a
@@ -39,12 +40,13 @@ export function parcelName(p) {
   return p.qty === 1 ? label : `${label} (${p.qty})`
 }
 
-// lo contado por talla, para editarlo: una prenda con las tallas de la plantilla y las que traiga
+// lo contado por talla, para editarlo: una prenda con las tallas de la empresa y las que traiga
 let nextKey = 1
 const newCount = (name = '', rows = []) => {
   const have = new Map(rows.map((r) => [r.size, r.qty]))
-  const extra = rows.filter((r) => !SIZES.includes(r.size)).map((r) => r.size)
-  return { key: nextKey++, name, rows: [...SIZES, ...extra].map((size) => ({ size, qty: have.get(size) || 0 })) }
+  const sizes = tallas()
+  const extra = rows.filter((r) => !sizes.includes(r.size)).map((r) => r.size)
+  return { key: nextKey++, name, rows: [...sizes, ...extra].map((size) => ({ size, qty: have.get(size) || 0 })) }
 }
 const countsFrom = (items) => groupItems(items).map((g) => newCount(g.name, g.rows))
 const flatten = (counts) => counts.flatMap((c) => (c.name.trim()

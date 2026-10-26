@@ -32,20 +32,35 @@ const MARCAS = {
 
 const PROPIA = 'kubica'
 
+// el nombre de la empresa guardado en Configuracion > Tu empresa: manda sobre
+// el de la marca (la app lo pone al llegar los ajustes)
+let empresaGuardada = ''
+
+export function setEmpresa(nombre) {
+  empresaGuardada = String(nombre || '').trim()
+}
+
 export function marca() {
   const id = typeof document !== 'undefined' ? document.documentElement.dataset.marca : ''
   return MARCAS[id] ? id : PROPIA
 }
 
 export function datosMarca() {
-  return MARCAS[marca()]
+  const m = MARCAS[marca()]
+  return empresaGuardada ? { ...m, empresa: empresaGuardada } : m
 }
 
 // [r, g, b] -> 0xRRGGBB, para Three.js
 export const hex = ([r, g, b]) => (r << 16) | (g << 8) | b
 
-// "Kubica", o "Pigmalion · Bodega" en la instalacion de una empresa
+// "Kubica", o con la empresa: "Distribuidora Uno · Kubica", "Pigmalion · Bodega"
 export function nombreApp() {
-  const { app, empresa } = datosMarca()
-  return empresa ? `${empresa} · ${app}` : app
+  return nombreAppCon(empresaGuardada)
+}
+
+// como quedaria con ese nombre de empresa (vacio: el de la marca, si tiene)
+export function nombreAppCon(nombre) {
+  const { app, empresa } = MARCAS[marca()]
+  const e = String(nombre || '').trim() || empresa
+  return e ? `${e} · ${app}` : app
 }

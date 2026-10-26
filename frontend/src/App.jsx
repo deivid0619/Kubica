@@ -5,7 +5,9 @@ import NavBar from './ui/NavBar'
 import NotificationBell from './modules/avisos/NotificationBell'
 import OfflineBar from './ui/OfflineBar'
 import Icon, { BrandMark } from './ui/Icon'
-import { datosMarca } from './core/marca'
+import { datosMarca, setEmpresa } from './core/marca'
+import { setTallas } from './core/tallas'
+import { useAjustes } from './core/useApi'
 import Boot from './ui/Boot'
 import { useMovementNotifications } from './modules/avisos/useMovementNotifications'
 import { useToast } from './ui/ToastContext'
@@ -81,6 +83,13 @@ function Shell() {
     } catch { /* sin almacenamiento */ }
     if (name !== null && isViewer) showToast(`Hola${name ? `, ${name}` : ''}`)
   }, [isViewer, showToast])
+  // los ajustes de la empresa: su nombre en los PDF y sus tallas
+  const { data: ajustes } = useAjustes()
+  useEffect(() => {
+    if (!ajustes) return
+    setEmpresa(ajustes.empresa_nombre)
+    setTallas(ajustes.tallas)
+  }, [ajustes])
   return (
     <div className="app">
       <header className="topbar">

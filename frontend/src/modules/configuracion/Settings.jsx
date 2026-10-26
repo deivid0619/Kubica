@@ -13,6 +13,9 @@ import ResetSheet from '../resumen/ResetSheet'
 import ViewLink from '../auth/ViewLink'
 import { NotificationPrefs } from '../avisos/NotificationBell'
 import { getTema, setTema } from '../../core/tema'
+import { useAjustes } from '../../core/useApi'
+import EmpresaSheet from './Empresa'
+import { tallasLabel, tiendaLabel } from './empresaParts'
 import { sectionsFor } from './sections'
 import './configuracion.css'
 
@@ -56,9 +59,10 @@ export default function Settings() {
   const install = useInstall()
   const showToast = useToast()
   const confirm = useConfirm()
-  const [sheet, setSheet] = useState(null) // reset | links | avisos | instalar
+  const [sheet, setSheet] = useState(null) // reset | links | avisos | instalar | nombre | tallas | tienda
   const [demoOn, setDemoOn] = useState(null)
   const [tema, setTemaState] = useState(getTema)
+  const { data: ajustes } = useAjustes()
   const sections = sectionsFor(user?.role)
   const has = (s) => sections.includes(s)
 
@@ -134,6 +138,18 @@ export default function Settings() {
           </Section>
         )}
 
+        {has('empresa') && (
+          <Section title="Tu empresa">
+            <SettingsRow icon="receipt" title="Nombre de la empresa" hint="Sale en los PDF, el Excel y los enlaces."
+                         value={ajustes ? ajustes.empresa_nombre || 'Sin poner' : '…'} onClick={ajustes ? () => setSheet('nombre') : undefined} />
+            <SettingsRow icon="hanger" title="Tallas que manejan" hint="Para contar por talla al recibir."
+                         value={ajustes ? tallasLabel(ajustes.tallas) : '…'} onClick={ajustes ? () => setSheet('tallas') : undefined} />
+            <SettingsRow icon="tag" title="Tienda en línea" hint="Llena nombre, foto y precio solos."
+                         value={ajustes ? (ajustes.catalogo_url ? tiendaLabel(ajustes.catalogo_url) : 'Sin conectar') : '…'}
+                         onClick={ajustes ? () => setSheet('tienda') : undefined} />
+          </Section>
+        )}
+
         {has('equipo') && (
           <Section title="Equipo">
             <SettingsRow icon="user" title="Enlaces «solo ver»" hint="Para quien solo consulta: entra sin contraseña y no cambia nada." onClick={() => setSheet('links')} />
@@ -164,6 +180,7 @@ export default function Settings() {
       </div>
 
       {sheet === 'reset' && <ResetSheet onClose={() => setSheet(null)} />}
+      {['nombre', 'tallas', 'tienda'].includes(sheet) && ajustes && <EmpresaSheet kind={sheet} ajustes={ajustes} onClose={() => setSheet(null)} />}
       {sheet === 'links' && (
         <Sheet modal onClose={() => setSheet(null)} label="Enlaces solo ver">
           <SheetHeader title="Enlaces «solo ver»" subtitle="Uno por persona: ve todo en vivo y no puede cambiar nada." />
