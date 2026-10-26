@@ -1,0 +1,30 @@
+/* ===== Modo oscuro (Configuracion > Apariencia) =====
+   Se activa con data-tema="oscuro" en <html> (ver core/tema.js). Son neutros
+   oscuros para cualquier marca: el acento sigue siendo el de la marca. Las
+   barras y fichas oscuras (--chrome) siguen oscuras; el texto (--ink) se
+   vuelve claro y el texto sobre el acento (--on-accent) sigue oscuro. */
+:root[data-tema="oscuro"]{
+  color-scheme:dark;
+  --fog:#121316; --fog-2:#24272C; --fog-3:#30343A; --paper:#1B1D21; --paper-rgb:27,29,33;
+  --ink:#EEEAE2; --graphite:#CFCAC0; --muted:#A9A396; --faint:#7E796F;
+  --line:#2A2D33; --line-2:#3B3F46;
+  --red:#FF8A73; --red-soft:#3A1D17;
+  --amber-soft:#3A1D17;
+  --warn-text:#FFA27F; --warn-text-strong:#FFC2A8; --warn-line:#5A2A1E;
+  --accent-soft:#3A3010; --accent-deep:#F5C842;
+  --chrome:#0B0C0E; --chrome-rgb:11,12,14;
+  --sh-1:none;
+  --sh-2:0 12px 32px -12px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.4);
+  --sh-3:0 30px 70px -20px rgba(0,0,0,.75),0 6px 18px -6px rgba(0,0,0,.5);
+  /* superficies que eran grises claros: chips, segmentos, esqueletos, el
+     agarre de las hojas y el fondo del 3D. Los grises que son texto sobre
+     fondos oscuros no cambian. */
+  --n-E4E8E0:#24272C; --n-E2E6DE:#24272C;
+  --n-ECEFE8:#1F2125; --n-F6F8F3:#2A2D33;
+  --n-D3D7CF:#3B3F46;
+  --n-FBFCF9:#1C1E22; --n-EEF1EA:#16181B; --n-DFE4DA:#101114;
+}
+/* la flecha de las listas desplegables, en claro */
+:root[data-tema="oscuro"] select.input{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23EEEAE2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+}

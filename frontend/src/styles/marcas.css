@@ -7,6 +7,7 @@
 /* Pigmalion: negro asfalto, lima y letra italica, como pigmalionmoto.com */
 :root[data-marca="pigmalion"]{
   --ink:#0B0B0B; --ink-2:#1B1C1B; --ink-3:#2C2D2C; --ink-rgb:11,11,11;
+  --chrome:#0B0B0B; --chrome-rgb:11,11,11; --on-accent:#0B0B0B;
   --accent:#C0FF00; --accent-press:#AAE300; --accent-soft:#F2FFD1; --accent-deep:#4E6B00;
   --accent-rgb:192,255,0; --accent-dim-rgb:110,150,0;
   --fog:#F3F6EF; --fog-2:#E8ECE3; --fog-3:#DCE1D6;

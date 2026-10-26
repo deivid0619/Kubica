@@ -18,6 +18,18 @@
   if (!/^[a-z0-9-]+$/.test(m)) m = 'kubica'
   document.documentElement.setAttribute('data-marca', m)
   if (m === 'pigmalion') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0B0B0B')
+  /* el modo oscuro de esta persona en este dispositivo (src/core/tema.js):
+     'oscuro', 'claro' o automatico (sigue al celular) */
+  try {
+    var t = localStorage.getItem('tema')
+    var dark = t === 'oscuro' || (t !== 'claro' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    if (dark) {
+      document.documentElement.setAttribute('data-tema', 'oscuro')
+      var meta = document.querySelector('meta[name="theme-color"]')
+      meta.setAttribute('data-claro', meta.getAttribute('content'))
+      meta.setAttribute('content', '#0B0C0E')
+    }
+  } catch (e) {}
 })()
 </script>
 <meta name="color-scheme" content="light">

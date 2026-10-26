@@ -378,7 +378,7 @@ export default function Warehouse() {
                   </button>
                 ) : (
                   <button key={`${r.type}-${r.id}`} className="wh-result" role="option" onClick={() => (r.type === 'loc' ? locate(r.id) : (setQuery(''), setSearchOpen(false), focusEl(r.id)))}>
-                    <span className="thumb sm" style={{ background: 'var(--ink)', color: 'var(--accent)' }}><Icon name={r.type === 'loc' ? 'pin' : 'warehouse'} size={20} /></span>
+                    <span className="thumb sm" style={{ background: 'var(--chrome)', color: 'var(--accent)' }}><Icon name={r.type === 'loc' ? 'pin' : 'warehouse'} size={20} /></span>
                     <span className="wh-result-t"><b>{r.label}</b><small>{r.type === 'loc' ? 'Ubicación' : 'Mueble completo'}</small></span>
                   </button>
                 )

@@ -7,7 +7,7 @@ button.set-row{transition:background-color 120ms ease}
 button.set-row:active{background:var(--fog-2)}
 @media (hover:hover) and (pointer:fine){button.set-row:hover{background:var(--fog)}}
 .set-ico{flex:none;width:36px;height:36px;border-radius:var(--r-sm);display:grid;place-items:center;background:var(--fog-2);color:var(--ink)}
-.set-ico.hi{background:var(--accent);color:var(--chrome, var(--ink))}
+.set-ico.hi{background:var(--accent);color:var(--on-accent)}
 .set-ico.danger{background:var(--red-soft);color:var(--red)}
 .set-t{flex:1;min-width:0}
 .set-t b{display:block;font:700 14.5px/1.25 var(--font)}
@@ -16,6 +16,11 @@ button.set-row:active{background:var(--fog-2)}
 .set-v{flex:none;max-width:45%;font-size:13px;color:var(--muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .set-chev{flex:none;color:var(--faint)}
 .set-row .switch{flex:none}
+/* modo oscuro: Automatico · Claro · Oscuro */
+.set-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;margin:0 14px 14px;border-radius:var(--r-sm);background:var(--fog-2)}
+.set-seg button{height:42px;border-radius:var(--r-xs);font:700 13.5px/1 var(--font);color:var(--graphite);transition:background-color 160ms ease,color 160ms ease}
+.set-seg button[aria-checked="true"]{background:var(--accent);color:var(--on-accent)}
+.set-card > .set-row:first-child:has(+ .set-seg){border-bottom:0}
 /* los ajustes de avisos dentro de una hoja (los mismos de la campana) */
 .set-prefs .menu-check{padding:12px 2px;border-top:1px solid var(--line)}
 .set-prefs .menu-check:first-child{border-top:0}

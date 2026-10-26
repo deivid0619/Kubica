@@ -12,6 +12,7 @@ import Sheet, { SheetHeader } from '../../ui/Sheet'
 import ResetSheet from '../resumen/ResetSheet'
 import ViewLink from '../auth/ViewLink'
 import { NotificationPrefs } from '../avisos/NotificationBell'
+import { getTema, setTema } from '../../core/tema'
 import { sectionsFor } from './sections'
 import './configuracion.css'
 
@@ -57,6 +58,7 @@ export default function Settings() {
   const confirm = useConfirm()
   const [sheet, setSheet] = useState(null) // reset | links | avisos | instalar
   const [demoOn, setDemoOn] = useState(null)
+  const [tema, setTemaState] = useState(getTema)
   const sections = sectionsFor(user?.role)
   const has = (s) => sections.includes(s)
 
@@ -110,6 +112,19 @@ export default function Settings() {
           <h1 className="display">Configuración</h1>
           <p className="lede">Deja {datosMarca().app} a la medida de tu empresa.</p>
         </div>
+
+        {has('apariencia') && (
+          <Section title="Apariencia">
+            <SettingsRow title="Modo oscuro" hint="Automático sigue el modo de tu celular." />
+            <div className="set-seg" role="radiogroup" aria-label="Modo oscuro">
+              {[['auto', 'Automático'], ['claro', 'Claro'], ['oscuro', 'Oscuro']].map(([t, label]) => (
+                <button key={t} type="button" role="radio" aria-checked={tema === t} onClick={() => { setTema(t); setTemaState(t) }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </Section>
+        )}
 
         {has('bodega') && (
           <Section title="Tu bodega">

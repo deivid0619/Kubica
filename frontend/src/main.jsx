@@ -9,6 +9,13 @@ import { ConfirmProvider } from './ui/ConfirmContext.jsx'
 import { NotificationPrefsProvider } from './modules/avisos/NotificationPrefsContext.jsx'
 import './styles/global.css'
 import './styles/marcas.css'
+import './styles/oscuro.css'
+import { applyTema, getTema, watchTema } from './core/tema'
+
+// el modo oscuro: index.html ya lo aplico antes de pintar; en automatico
+// sigue al celular si cambia con la app abierta
+applyTema(getTema())
+watchTema(() => { if (getTema() === 'auto') applyTema('auto') })
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}))
