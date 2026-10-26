@@ -148,11 +148,15 @@ export default function Warehouse() {
   }
 
   // enlace directo desde Inventario o el detalle de una prenda: /?loc=C-1-1
-  // (una ubicacion) o /?sku=CODIGO (todas las ubicaciones de esa prenda)
+  // (una ubicacion) o /?sku=CODIGO (todas las ubicaciones de esa prenda);
+  // desde Configuracion, /?editar=1 abre el editor (solo administradores)
   useEffect(() => {
     const loc = params.get('loc')
     const sku = params.get('sku')
-    if (loc && layout) {
+    if (params.get('editar') && layout) {
+      if (isAdmin) enterEdit()
+      setParams({}, { replace: true })
+    } else if (loc && layout) {
       locate(loc)
       setParams({}, { replace: true })
     } else if (sku && layout && products) {

@@ -50,3 +50,22 @@ def test_weekly_flow_and_dead_stock():
         assert "REP-VIVA" not in dead          # salio hace poco
         assert "REP-NUEVA" not in dead         # recien registrada
         assert "REP-PARADA" not in {d["product"]["sku"] for d in client.get("/api/reports/dead?days=90", headers=h).json()}
+
+
+def test_demo_status():
+    """Configuracion muestra si los datos de prueba estan cargados (solo admin)."""
+    with TestClient(app) as client:
+        h = _h(client)
+        before = client.get("/api/reports/demo", headers=h)
+        assert before.status_code == 200 and isinstance(before.json()["demo"], bool)
+        start = before.json()["demo"]
+        assert client.post("/api/reports/demo", headers=h).json()["demo"] is (not start)
+        assert client.get("/api/reports/demo", headers=h).json() == {"demo": not start}
+        client.post("/api/reports/demo", headers=h)  # como estaba
+        assert client.get("/api/reports/demo", headers=h).json() == {"demo": start}
+
+        r = client.post("/api/auth/register", json={"name": "Op Demo", "email": "op-demo@test.com", "password": "clave1234",
+                                                    "invite_code": settings.registration_code})
+        op = r.json()["access_token"] if r.status_code == 200 else client.post(
+            "/api/auth/login", json={"email": "op-demo@test.com", "password": "clave1234"}).json()["access_token"]
+        assert client.get("/api/reports/demo", headers={"Authorization": f"Bearer {op}"}).status_code == 403

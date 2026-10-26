@@ -3,15 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../core/AuthContext'
 import { refreshInventory, useLayout, useMovements, useNeeds, usePolling, useProducts, useReserve, useTop } from '../../core/useApi'
 import { useToast } from '../../ui/ToastContext'
-import { useConfirm } from '../../ui/ConfirmContext'
 import { api, apiBlob, ApiError } from '../../core/api'
 import { downloadBlob, outletIdsOf, refKey, stockSplit } from '../../core/utils'
 import Icon from '../../ui/Icon'
-import ResetSheet from './ResetSheet'
 import DocumentSheet, { DocumentsSheet } from '../documentos/DocumentSheet'
 import DocsSection from '../documentos/DocCalendar'
 import SummaryIndex from './SummaryIndex'
-import ViewLink from '../auth/ViewLink'
 import MovementSheet, { pairOf } from '../inventario/MovementSheet'
 import PassingSection from '../despacho/Passing'
 import StoreStatus, { PhotoStoreStatus } from './StoreStatus'
@@ -25,7 +22,6 @@ export default function Summary() {
   const { isAdmin } = useAuth()
   const navigate = useNavigate()
   const showToast = useToast()
-  const confirm = useConfirm()
   const { data: needs } = useNeeds()
   const { data: top } = useTop()
   const { data: products } = useProducts()
@@ -51,11 +47,9 @@ export default function Summary() {
     setMovesOpen(next)
     try { localStorage.setItem('bodega_resumen_movimientos', next ? 'abierto' : 'cerrado') } catch { /* sin almacenamiento */ }
   }
-  const [resetting, setResetting] = useState(false)
   const [docOpen, setDocOpen] = useState(null)
   const [moveOpen, setMoveOpen] = useState(null) // el movimiento que se esta viendo
   const [docList, setDocList] = useState(null)
-  const [demoOn, setDemoOn] = useState(null)
 
   const kpi = useMemo(() => ({
     // lo de paso (Despacho) y el outlet no son de la bodega
@@ -104,19 +98,6 @@ export default function Summary() {
       showToast(r.updated ? `${plural(r.updated, 'foto agregada', 'fotos agregadas')} desde la tienda` : 'Las prendas de la tienda ya tienen su foto')
     } catch (e) {
       showToast(e instanceof ApiError ? e.message : 'No se pudo leer la tienda.', 'err')
-    }
-  }
-  const toggleDemo = async () => {
-    const ok = await confirm(demoOn
-      ? { title: '¿Quitar los datos de prueba?', body: 'Se borran las prendas y los movimientos de ejemplo. Lo que registraste tú no se toca.', confirmLabel: 'Sí, quitarlos' }
-      : { title: '¿Cargar datos de prueba?', body: 'Se agregan prendas y movimientos de ejemplo para ver cómo se ve la app. Se quitan con el mismo botón.', confirmLabel: 'Cargar', danger: false })
-    if (!ok) return
-    try {
-      const res = await api.post('/api/reports/demo')
-      setDemoOn(res.demo)
-      showToast(res.demo ? 'Datos de prueba cargados' : 'Datos de prueba quitados')
-    } catch (e) {
-      showToast(e instanceof ApiError ? e.message : 'No se pudo cambiar los datos de prueba.', 'err')
     }
   }
 
@@ -225,18 +206,10 @@ export default function Summary() {
               <button className="btn btn-quiet btn-block" onClick={syncPhotos}>
                 <Icon name="download" size={18} />Traer fotos de la tienda
               </button>
-              <button className="btn btn-quiet btn-block" onClick={toggleDemo}>
-                {demoOn === true ? 'Quitar datos de prueba' : 'Cargar datos de prueba'}
-              </button>
-              <button className="btn btn-danger btn-block" onClick={() => setResetting(true)}>
-                Empezar de cero (borrar todo)
-              </button>
             </>
           )}
         </div>
-        {isAdmin && <ViewLink />}
       </div>
-      {resetting && <ResetSheet onClose={() => setResetting(false)} />}
       {docOpen && <DocumentSheet doc={docOpen} onClose={() => setDocOpen(null)} />}
       {moveOpen && <MovementSheet movement={moveOpen} pair={pairOf(moveOpen, moves)} onClose={() => setMoveOpen(null)} />}
       {docList && <DocumentsSheet kind={docList} onClose={() => setDocList(null)} />}

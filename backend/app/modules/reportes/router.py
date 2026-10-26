@@ -172,6 +172,12 @@ def _today():
     return datetime.now(ser.BOGOTA).date()
 
 
+@router.get("/demo")
+def demo_status(db: Session = Depends(get_db), _: models.User = Depends(require_admin)):
+    """Si los datos de prueba estan cargados (Configuracion > Datos)."""
+    return {"demo": inv.has_demo_data(db)}
+
+
 @router.post("/demo")
 def toggle_demo(db: Session = Depends(get_db), user: models.User = Depends(require_admin)):
     if inv.has_demo_data(db):

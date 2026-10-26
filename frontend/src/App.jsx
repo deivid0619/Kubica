@@ -1,15 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { WELCOME, useAuth } from './core/AuthContext'
 import NavBar from './ui/NavBar'
 import NotificationBell from './modules/avisos/NotificationBell'
 import OfflineBar from './ui/OfflineBar'
 import Icon, { BrandMark } from './ui/Icon'
 import { datosMarca } from './core/marca'
-import Sheet, { SheetHeader } from './ui/Sheet'
 import Boot from './ui/Boot'
 import { useMovementNotifications } from './modules/avisos/useMovementNotifications'
-import { useInstall } from './core/install'
 import { useToast } from './ui/ToastContext'
 import Login from './modules/auth/Login'
 import Scan from './modules/escaneo/Scan'
@@ -18,6 +16,7 @@ import Reserve from './modules/reserva/Reserve'
 import Summary from './modules/resumen/Summary'
 import Count from './modules/conteo/Count'
 import Reports from './modules/reportes/Reports'
+import Settings from './modules/configuracion/Settings'
 
 // el 3D (three.js) es lo mas pesado: se descarga aparte, asi el login y las
 // demas pantallas abren rapido en el celular
@@ -35,18 +34,11 @@ const initials = (name = '') =>
 
 function AccountMenu() {
   const { user, logout } = useAuth()
-  const install = useInstall()
-  const showToast = useToast()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
-  const [iosHelp, setIosHelp] = useState(false)
-
-  const doInstall = async () => {
+  const go = (path) => {
     setOpen(false)
-    if (install.canPrompt) {
-      if (await install.prompt()) showToast(`${datosMarca().app} quedó instalada en este dispositivo`)
-    } else {
-      setIosHelp(true)
-    }
+    navigate(path)
   }
 
   return (
@@ -62,34 +54,15 @@ function AccountMenu() {
               <b>{user?.name}</b>
               <span>{user?.email} · {user?.role === 'admin' ? 'Administrador' : 'Operador'}</span>
             </div>
-            {!install.standalone && (
-              <button className="menu-item" role="menuitem" onClick={doInstall}>
-                <Icon name="install" size={20} /> Instalar en este celular
-              </button>
-            )}
+            {/* instalar, avisos y lo demas: en Configuracion */}
+            <button className="menu-item" role="menuitem" onClick={() => go('/settings')}>
+              <Icon name="pencil" size={20} /> Configuración
+            </button>
             <button className="menu-item" role="menuitem" onClick={logout}>
               <Icon name="logout" size={20} /> Cerrar sesión
             </button>
           </div>
         </>
-      )}
-      {iosHelp && (
-        <Sheet modal onClose={() => setIosHelp(false)} label="Instalar la app">
-          <SheetHeader title={`Instalar ${datosMarca().app}`} subtitle="Queda como una app más, con su ícono y en pantalla completa." />
-          {install.ios ? (
-            <ol className="install-steps">
-              <li>Toca el botón <b>Compartir</b> de Safari (el cuadro con la flecha hacia arriba).</li>
-              <li>Elige <b>Agregar a pantalla de inicio</b>.</li>
-              <li>Toca <b>Agregar</b>. El ícono de {datosMarca().app} aparece con tus apps.</li>
-            </ol>
-          ) : (
-            <ol className="install-steps">
-              <li>Abre el menú del navegador (los tres puntos).</li>
-              <li>Elige <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
-              <li>Confirma. El ícono de {datosMarca().app} aparece con tus apps.</li>
-            </ol>
-          )}
-        </Sheet>
       )}
     </div>
   )
@@ -135,6 +108,7 @@ function Shell() {
           <Route path="/summary" element={<Summary />} />
           <Route path="/count" element={<Count />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/orders" element={<Navigate to="/summary" replace />} />
           <Route path="/history" element={<Navigate to="/summary" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
