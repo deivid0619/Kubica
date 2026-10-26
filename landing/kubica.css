@@ -18,7 +18,7 @@ a{color:inherit}
 .skip:focus{left:8px}
 
 /* tipografia: Archivo ancho y en mayusculas solo para titulos */
-.display{font-weight:800;font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;line-height:.94;margin:0}
+.display{font-weight:800;font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;line-height:.94;margin:0;text-wrap:balance}
 h1.display{font-size:clamp(2.7rem,7.4vw,5.6rem)}
 h2.display{font-size:clamp(1.85rem,4.2vw,3rem)}
 .lede{font-size:clamp(1.08rem,1.6vw,1.25rem);color:var(--ink-2);max-width:34em}
