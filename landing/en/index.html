@@ -34,6 +34,7 @@
       <span class="wordmark">Kubica</span>
     </a>
     <nav class="nav" aria-label="Sections">
+      <a href="#the-app">The app</a>
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -125,6 +126,63 @@
           </div>
         </div>
       </figure>
+    </div>
+  </section>
+
+  <section class="sec shots" id="the-app">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Take a look inside</h2>
+        <p>This is Kubica with a sample warehouse, on a computer and on a phone. The screens are in Spanish for now.</p>
+      </div>
+      <div class="viewer" data-shots>
+        <div class="shot-tabs" role="tablist" aria-label="Kubica screens">
+          <button type="button" role="tab" id="tab-3d" aria-controls="shot-3d" aria-selected="true">
+            <b>Your warehouse in 3D</b>
+            <span>Every fixture with its letter and how many items it holds.</span>
+          </button>
+          <button type="button" role="tab" id="tab-where" aria-controls="shot-where" aria-selected="false">
+            <b>Where every size is</b>
+            <span>Search for a style and its bin lights up, showing what’s inside.</span>
+          </button>
+          <button type="button" role="tab" id="tab-stock" aria-controls="shot-stock" aria-selected="false">
+            <b>Stock by size</b>
+            <span>How many of each size, in which location and in backstock.</span>
+          </button>
+          <button type="button" role="tab" id="tab-reorder" aria-controls="shot-reorder" aria-selected="false">
+            <b>What to reorder</b>
+            <span>What’s sold out or below minimum, and what to bring from backstock.</span>
+          </button>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-3d" aria-labelledby="tab-3d">
+          <picture>
+            <source media="(max-width:700px)" srcset="../capturas/bodega-3d-cel.webp" width="780" height="1688">
+            <img src="../capturas/bodega-3d.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Kubica screen: the sample warehouse in 3D, with racks, shelves and bins labeled with their letter and item count.">
+          </picture>
+          <p class="shot-cap">Every fixture with its letter and how many items it holds.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-where" aria-labelledby="tab-where" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="../capturas/donde-esta-cel.webp" width="780" height="1688">
+            <img src="../capturas/donde-esta.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Kubica screen: bin C-3-2 lit up in yellow and, next to it, the rain jacket stored inside, with 4 units.">
+          </picture>
+          <p class="shot-cap">Search for a style and its bin lights up, showing what’s inside.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-stock" aria-labelledby="tab-stock" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="../capturas/inventario-cel.webp" width="780" height="1688">
+            <img src="../capturas/inventario.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Kubica screen: the inventory with each style, its sizes, how many are in the warehouse and in backstock, and where each one is.">
+          </picture>
+          <p class="shot-cap">How many of each size, in which location and in backstock.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-reorder" aria-labelledby="tab-reorder" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="../capturas/que-pedir-cel.webp" width="780" height="1688">
+            <img src="../capturas/que-pedir.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Kubica screen: the summary with items in the warehouse and the reorder list, such as white sneakers sold out in one size.">
+          </picture>
+          <p class="shot-cap">What’s sold out or below minimum, and what to bring from backstock.</p>
+        </div>
+      </div>
     </div>
   </section>
 

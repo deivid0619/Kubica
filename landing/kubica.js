@@ -36,6 +36,44 @@ const CONTACTO = {
   window.addEventListener('scroll', on, { passive: true })
 })()
 
+// la app por dentro: cada pestana cambia la captura (tambien con las flechas)
+;(function capturas() {
+  const viewer = document.querySelector('[data-shots]')
+  if (!viewer) return
+  const tabs = [...viewer.querySelectorAll('[role="tab"]')]
+  const list = tabs[0].parentElement
+
+  const select = (tab, focus) => {
+    for (const t of tabs) {
+      const on = t === tab
+      t.setAttribute('aria-selected', String(on))
+      t.tabIndex = on ? 0 : -1
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on
+    }
+    if (focus) tab.focus()
+    // en celular la fila se desliza para que la pestana elegida se vea
+    if (list.scrollWidth > list.clientWidth) list.scrollTo({ left: tab.offsetLeft - 16, behavior: 'smooth' })
+  }
+
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t))
+    t.addEventListener('keydown', (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]
+      if (!step) return
+      e.preventDefault()
+      select(tabs[(i + step + tabs.length) % tabs.length], true)
+    })
+  })
+  tabs.forEach((t, i) => { t.tabIndex = i ? -1 : 0 })
+
+  // al acercarse a la seccion se cargan todas, para que el cambio de pestana sea inmediato
+  new IntersectionObserver((entries, obs) => {
+    if (!entries.some((e) => e.isIntersecting)) return
+    viewer.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = 'eager' })
+    obs.disconnect()
+  }, { rootMargin: '400px' }).observe(viewer)
+})()
+
 // la estanteria: una canasta se enciende y la etiqueta dice que hay ahi
 ;(function buscador() {
   const ITEMS = TEXTOS.buscador

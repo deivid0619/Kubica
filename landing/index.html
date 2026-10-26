@@ -34,6 +34,7 @@
       <span class="wordmark">Kubica</span>
     </a>
     <nav class="nav" aria-label="Secciones">
+      <a href="#la-app">La app</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#precios">Precios</a>
       <a href="#preguntas">Preguntas</a>
@@ -125,6 +126,63 @@
           </div>
         </div>
       </figure>
+    </div>
+  </section>
+
+  <section class="sec shots" id="la-app">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Mira la app por dentro</h2>
+        <p>Así se ve con una bodega de ejemplo, en el computador y en el celular.</p>
+      </div>
+      <div class="viewer" data-shots>
+        <div class="shot-tabs" role="tablist" aria-label="Pantallas de Kubica">
+          <button type="button" role="tab" id="tab-3d" aria-controls="shot-3d" aria-selected="true">
+            <b>Tu bodega en 3D</b>
+            <span>Cada mueble con su letra y cuántas prendas tiene.</span>
+          </button>
+          <button type="button" role="tab" id="tab-donde" aria-controls="shot-donde" aria-selected="false">
+            <b>Dónde está cada talla</b>
+            <span>Buscas la prenda y su canasta se ilumina, con lo que hay adentro.</span>
+          </button>
+          <button type="button" role="tab" id="tab-inv" aria-controls="shot-inv" aria-selected="false">
+            <b>Inventario por talla</b>
+            <span>Cuántas hay de cada talla, en qué ubicación y en la reserva.</span>
+          </button>
+          <button type="button" role="tab" id="tab-pedir" aria-controls="shot-pedir" aria-selected="false">
+            <b>Qué pedir</b>
+            <span>Lo agotado o bajo el mínimo, y lo que puedes traer de la reserva.</span>
+          </button>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-3d" aria-labelledby="tab-3d">
+          <picture>
+            <source media="(max-width:700px)" srcset="capturas/bodega-3d-cel.webp" width="780" height="1688">
+            <img src="capturas/bodega-3d.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Pantalla de Kubica: la bodega de ejemplo en 3D, con percheros, estanterías y canastas marcados con su letra y la cantidad de prendas.">
+          </picture>
+          <p class="shot-cap">Cada mueble con su letra y cuántas prendas tiene.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-donde" aria-labelledby="tab-donde" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="capturas/donde-esta-cel.webp" width="780" height="1688">
+            <img src="capturas/donde-esta.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Pantalla de Kubica: la canasta C-3-2 iluminada en amarillo y, al lado, la chaqueta impermeable que hay adentro, con 4 unidades.">
+          </picture>
+          <p class="shot-cap">Buscas la prenda y su canasta se ilumina, con lo que hay adentro.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-inv" aria-labelledby="tab-inv" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="capturas/inventario-cel.webp" width="780" height="1688">
+            <img src="capturas/inventario.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Pantalla de Kubica: el inventario con cada referencia, sus tallas, cuántas hay en la bodega y en la reserva, y en qué ubicación está cada una.">
+          </picture>
+          <p class="shot-cap">Cuántas hay de cada talla, en qué ubicación y en la reserva.</p>
+        </div>
+        <div class="shot" role="tabpanel" id="shot-pedir" aria-labelledby="tab-pedir" hidden>
+          <picture>
+            <source media="(max-width:700px)" srcset="capturas/que-pedir-cel.webp" width="780" height="1688">
+            <img src="capturas/que-pedir.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Pantalla de Kubica: el resumen con las prendas en bodega y la lista de qué pedir, como unos tenis talla 41 agotados.">
+          </picture>
+          <p class="shot-cap">Lo agotado o bajo el mínimo, y lo que puedes traer de la reserva.</p>
+        </div>
+      </div>
     </div>
   </section>
 
