@@ -279,8 +279,11 @@ frontend/
     styles/global.css     estilos generales (cada modulo puede traer los suyos)
 
 landing/                  la pagina de presentacion de Kubica (HTML suelto, sin
-                          construir): que hace, precios y contacto. El WhatsApp
-                          y el correo se cambian al final de index.html (CONTACTO)
+                          construir): que hace, precios y contacto, en espanol
+                          (index.html) y en ingles (en/index.html). Las dos usan
+                          kubica.css y kubica.js; el WhatsApp y el correo se
+                          cambian en kubica.js (CONTACTO). Se publica en
+                          https://kubicacol.github.io
 ```
 
 ## Variables del servidor (`backend/.env`)
