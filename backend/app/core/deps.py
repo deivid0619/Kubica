@@ -12,6 +12,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=Fals
 
 
 VIEW_ONLY = "Esta cuenta es solo para ver: aquí no se puede cambiar nada."
+NO_ACCESS = "Esta cuenta ya no tiene acceso. Habla con un administrador."
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 
@@ -39,7 +40,7 @@ def _authenticated(token: str | None, db: Session) -> models.User:
         # usuario admin que exista.
         dev_user = (
             db.query(models.User)
-            .filter(models.User.role == "admin")
+            .filter(models.User.role == "admin", models.User.active.is_(True))
             .order_by(models.User.id)
             .first()
         )
@@ -58,6 +59,9 @@ def _authenticated(token: str | None, db: Session) -> models.User:
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
         raise unauthorized
+    if not user.active:
+        # le quitaron el acceso: la sesion que tenia abierta se cierra
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=NO_ACCESS, headers={"WWW-Authenticate": "Bearer"})
     return user
 
 

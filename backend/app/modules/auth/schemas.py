@@ -1,5 +1,5 @@
 """Datos de la sesion, los usuarios y los enlaces para ver."""
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -13,6 +13,23 @@ class UserOut(BaseModel):
     email: str
     name: str
     role: str
+
+
+class UserAdminOut(BaseModel):
+    """Una persona del equipo, como la ve un administrador (Configuracion > Equipo)."""
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    email: str
+    role: str
+    active: bool
+    created_at: Optional[UtcDatetime] = None
+
+
+class UserPatchIn(BaseModel):
+    """Cambiar el rol o quitar / devolver el acceso (lo que no llega no cambia)."""
+    role: Optional[Literal["admin", "operator"]] = None
+    active: Optional[bool] = None
 
 
 class RegisterIn(BaseModel):

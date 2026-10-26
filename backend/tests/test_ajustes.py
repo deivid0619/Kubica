@@ -32,7 +32,7 @@ def _admin(client):
 def _operator(client, email="op-ajustes@test.com"):
     r = client.post("/api/auth/register", json={"name": "Operador Ajustes", "email": email, "password": "op123456",
                                                 "invite_code": settings.registration_code})
-    if r.status_code != 201:
+    if r.status_code != 200:
         r = client.post("/api/auth/login", json={"email": email, "password": "op123456"})
     return _h(r.json()["access_token"])
 
@@ -69,7 +69,7 @@ def test_admin_saves_and_reads():
             assert got["empresa_nombre"] == "Distribuidora Uno" and got["tallas"] == ["S", "M", "L"]
             # cambiar solo el nombre deja las tallas
             r = client.put("/api/settings", headers=admin, json={"empresa_nombre": "Uno"})
-            assert r.json() == {**got, "empresa_nombre": "Uno"}
+            assert {k: v for k, v in r.json().items() if k != "codigo_registro"} == {**got, "empresa_nombre": "Uno"}
         finally:
             _reset()
 

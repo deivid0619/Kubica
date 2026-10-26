@@ -11,6 +11,7 @@ class AjustesOut(BaseModel):
     empresa_nombre: str
     tallas: list[str]
     catalogo_url: str
+    codigo_registro: str | None = None  # solo para un administrador
 
 
 class AjustesIn(BaseModel):
@@ -19,6 +20,8 @@ class AjustesIn(BaseModel):
     tallas: list[Talla] | None = Field(default=None, min_length=1, max_length=20)
     # vacia apaga el catalogo de la tienda
     catalogo_url: Annotated[str, StringConstraints(strip_whitespace=True, max_length=300)] | None = None
+    # el que pide la app al crear cuenta; el de antes deja de servir
+    codigo_registro: Annotated[str, StringConstraints(strip_whitespace=True, min_length=4, max_length=40)] | None = None
 
     @field_validator("tallas")
     @classmethod

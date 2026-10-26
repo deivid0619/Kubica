@@ -1,5 +1,5 @@
 """Usuarios y enlaces para ver sin editar."""
-from sqlalchemy import Column, DateTime, Integer, JSON, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, JSON, String
 
 from app.core.database import Base, now
 
@@ -12,6 +12,8 @@ class User(Base):
     name = Column(String(120), nullable=False)
     password_hash = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False, default="operator")  # admin | operator | viewer (solo ver, del enlace)
+    # sin acceso: no entra ni le llegan avisos, pero su historial se queda (Configuracion > Equipo)
+    active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), default=now)
 
 

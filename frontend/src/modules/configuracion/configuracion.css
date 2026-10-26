@@ -35,3 +35,15 @@ button.set-row:active{background:var(--fog-2)}
 .set-note{margin:14px 0 0;font-size:13px;line-height:1.4;color:var(--muted)}
 .set-base{margin-top:10px;padding-left:0;color:var(--accent-deep)}
 .set-store{margin-top:14px}
+/* Equipo: las personas (como los enlaces "solo ver") y el codigo */
+.set-people .vl-row:first-child{border-top:0}
+.set-person .vl-t small + small{margin-top:1px}
+.set-person.off .vl-ico{background:var(--fog-2);color:var(--muted)}
+.set-person.off .vl-t b{color:var(--graphite)}
+.set-you{display:inline-block;margin-left:8px;padding:3px 7px;border-radius:var(--r-xs);background:var(--accent-soft);color:var(--accent-deep);font:700 11px/1 var(--font);vertical-align:2px}
+.set-sub{margin:22px 0 2px;font:700 13px/1.2 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.set-code{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--fog)}
+.set-code .mono{font-size:17px;font-weight:500;overflow-wrap:anywhere}
+.set-v .mono{font-family:var(--mono)}
+/* el codigo distingue mayusculas: se ve tal cual se escribe */
+.input.mono.set-code-input{text-transform:none}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { LINK_ERROR, keyFrom, useAuth } from '../../core/AuthContext'
 import { ApiError } from '../../core/api'
@@ -54,15 +54,21 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [inviteCode, setInviteCode] = useState('')
+  // el aviso de por que se cerro la sesion (enlace que ya no funciona, cuenta
+  // sin acceso). Se borra despues de pintarlo: en desarrollo React dibuja dos
+  // veces y si se borrara aqui la segunda ya no lo encontraria
   const [error, setError] = useState(() => {
     try {
-      const e = sessionStorage.getItem(LINK_ERROR) || ''
-      sessionStorage.removeItem(LINK_ERROR)
-      return e
+      return sessionStorage.getItem(LINK_ERROR) || ''
     } catch {
       return ''
     }
   })
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(LINK_ERROR)
+    } catch { /* sin almacenamiento */ }
+  }, [])
   const [busy, setBusy] = useState(false)
 
   if (ready && token) return <Navigate to="/" replace />

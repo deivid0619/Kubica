@@ -8,6 +8,8 @@ let onUnauthorized = null
 // igual los rechaza)
 let viewOnly = false
 export const VIEW_ONLY = 'Esta cuenta es solo para ver: aquí no se puede cambiar nada.'
+// le quitaron el acceso (Configuracion > Equipo): el servidor responde 401 con esto
+export const NO_ACCESS = 'Esta cuenta ya no tiene acceso. Habla con un administrador.'
 
 export function setAuthToken(token) {
   authToken = token
@@ -47,8 +49,6 @@ async function request(path, { method = 'GET', body, isForm, requestId } = {}) {
     body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
   })
 
-  if (res.status === 401 && onUnauthorized) onUnauthorized()
-
   if (!res.ok) {
     let detail = `Error ${res.status}`
     try {
@@ -58,6 +58,7 @@ async function request(path, { method = 'GET', body, isForm, requestId } = {}) {
     } catch {
       // la respuesta no era JSON (por ejemplo, un error de red del proxy)
     }
+    if (res.status === 401 && onUnauthorized) onUnauthorized(detail)
     throw new ApiError(detail, res.status)
   }
   if (res.status === 204) return null
@@ -74,7 +75,6 @@ async function raw(path, { method = 'GET', body, type } = {}) {
   if (type) headers['Content-Type'] = type
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`
   const res = await fetch(`${BASE}${path}`, { method, headers, body })
-  if (res.status === 401 && onUnauthorized) onUnauthorized()
   if (!res.ok) {
     let detail = `Error ${res.status}`
     try {
@@ -83,6 +83,7 @@ async function raw(path, { method = 'GET', body, type } = {}) {
     } catch {
       // no era JSON
     }
+    if (res.status === 401 && onUnauthorized) onUnauthorized(detail)
     throw new ApiError(detail, res.status)
   }
   return res

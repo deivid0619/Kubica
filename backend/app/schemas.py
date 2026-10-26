@@ -1,7 +1,7 @@
 """Los datos que entran y salen de la API, cada uno en su modulo. El codigo
 los usa como schemas.ProductOut, schemas.RemisionIn..."""
 from app.core.types import UtcDatetime  # noqa: F401
-from app.modules.auth.schemas import UserOut, RegisterIn, ViewKeyIn, ViewLinkIn, ViewLinkOut, ViewLinkNotifyIn, LoginIn, Token  # noqa: F401
+from app.modules.auth.schemas import UserOut, UserAdminOut, UserPatchIn, RegisterIn, ViewKeyIn, ViewLinkIn, ViewLinkOut, ViewLinkNotifyIn, LoginIn, Token  # noqa: F401
 from app.modules.avisos.schemas import RecipientOut, NoticeIn, NoticeOut  # noqa: F401
 from app.modules.bodega.schemas import ElementType, RoomOut, RoomIn, LocationOut, ElementOut, ElementCreateIn, ElementUpdateIn, LocationOutletIn, LayoutOut  # noqa: F401
 from app.modules.inventario.schemas import MovementType, StockOut, ProductOut, ProductCreateIn, AliasIn, ProductUpdateIn, MovementIn, MoveIn, MovementOut, MovementResult  # noqa: F401

@@ -16,6 +16,7 @@ _NEW_COLUMNS = {
     "reserve_items": [("image_url", "VARCHAR(500)")],
     "view_links": [("notify", "JSON")],
     "parcels": [("items", "JSON"), ("remind_on", "VARCHAR(10)")],
+    "users": [("active", "BOOLEAN NOT NULL DEFAULT TRUE")],
 }
 
 

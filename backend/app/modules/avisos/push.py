@@ -85,10 +85,12 @@ def notify(kind: str, title: str, body: str, url: str = "/summary", tag: str | N
     if kind not in KINDS:
         return
     with SessionLocal() as db:
-        # a las cuentas "solo ver" solo les llega lo que se les manda (notify_users)
-        viewers = {u for (u,) in db.query(models.User.id).filter(models.User.role == "viewer")}
+        # a las cuentas "solo ver" solo les llega lo que se les manda (notify_users),
+        # y a quien le quitaron el acceso, nada
+        skip = {u for (u,) in db.query(models.User.id).filter(
+            (models.User.role == "viewer") | models.User.active.is_(False))}
         targets = [s for s in db.query(models.PushSubscription).all()
-                   if s.user_id != exclude_user_id and s.user_id not in viewers and clean_prefs(s.prefs)[kind]]
+                   if s.user_id != exclude_user_id and s.user_id not in skip and clean_prefs(s.prefs)[kind]]
         # el mismo tag reemplaza el aviso anterior en el celular en vez de apilarlos
         _deliver(db, targets, {"title": title, "body": body, "url": url, "tag": tag or kind})
 

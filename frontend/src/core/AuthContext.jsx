@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { api, isNetworkError, setAuthToken, setUnauthorizedHandler, setViewOnly } from './api'
+import { NO_ACCESS, api, isNetworkError, setAuthToken, setUnauthorizedHandler, setViewOnly } from './api'
 import { clearCache, readUser, writeUser } from './offline'
 
 const AuthContext = createContext(null)
@@ -64,9 +64,11 @@ export function AuthProvider({ children }) {
   }, [applySession])
 
   // la sesion vencio: con un enlace guardado se vuelve a entrar sola; si el
-  // enlace ya no existe, a la pantalla de entrada con el aviso
-  const expired = useCallback(async () => {
+  // enlace ya no existe, a la pantalla de entrada con el aviso. Si le quitaron
+  // el acceso, la pantalla de entrada se lo dice.
+  const expired = useCallback(async (reason) => {
     if (reentering.current) return
+    if (reason === NO_ACCESS) noteError({ message: reason })
     const key = storedKey()
     if (!key) {
       clearSession()

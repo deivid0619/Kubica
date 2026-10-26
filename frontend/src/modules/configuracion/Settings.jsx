@@ -15,6 +15,7 @@ import { NotificationPrefs } from '../avisos/NotificationBell'
 import { getTema, setTema } from '../../core/tema'
 import { useAjustes } from '../../core/useApi'
 import EmpresaSheet from './Empresa'
+import PersonasSheet, { CodigoSheet } from './Personas'
 import { tallasLabel, tiendaLabel } from './empresaParts'
 import { sectionsFor } from './sections'
 import './configuracion.css'
@@ -59,7 +60,8 @@ export default function Settings() {
   const install = useInstall()
   const showToast = useToast()
   const confirm = useConfirm()
-  const [sheet, setSheet] = useState(null) // reset | links | avisos | instalar | nombre | tallas | tienda
+  const [sheet, setSheet] = useState(null) // reset | links | avisos | instalar | nombre | tallas | tienda | personas | codigo
+  const [people, setPeople] = useState(null)
   const [demoOn, setDemoOn] = useState(null)
   const [tema, setTemaState] = useState(getTema)
   const { data: ajustes } = useAjustes()
@@ -67,8 +69,8 @@ export default function Settings() {
   const has = (s) => sections.includes(s)
 
   useEffect(() => {
-    if (!has('datos')) return
-    api.get('/api/reports/demo').then((r) => setDemoOn(r.demo)).catch(() => {})
+    if (has('datos')) api.get('/api/reports/demo').then((r) => setDemoOn(r.demo)).catch(() => {})
+    if (has('equipo')) api.get('/api/users').then(setPeople).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.role])
 
@@ -152,7 +154,12 @@ export default function Settings() {
 
         {has('equipo') && (
           <Section title="Equipo">
-            <SettingsRow icon="user" title="Enlaces «solo ver»" hint="Para quien solo consulta: entra sin contraseña y no cambia nada." onClick={() => setSheet('links')} />
+            <SettingsRow icon="user" title="Personas" hint="Quién entra y quién es administrador."
+                         value={people ? people.filter((p) => p.active).length : '…'} onClick={people ? () => setSheet('personas') : undefined} />
+            <SettingsRow icon="plus" title="Código para unirse" hint="Lo que pide la app al crear cuenta."
+                         value={ajustes?.codigo_registro ? <span className="mono">{ajustes.codigo_registro}</span> : '…'}
+                         onClick={ajustes?.codigo_registro ? () => setSheet('codigo') : undefined} />
+            <SettingsRow icon="search" title="Enlaces «solo ver»" hint="Para quien solo consulta: entra sin contraseña y no cambia nada." onClick={() => setSheet('links')} />
           </Section>
         )}
 
@@ -181,6 +188,8 @@ export default function Settings() {
 
       {sheet === 'reset' && <ResetSheet onClose={() => setSheet(null)} />}
       {['nombre', 'tallas', 'tienda'].includes(sheet) && ajustes && <EmpresaSheet kind={sheet} ajustes={ajustes} onClose={() => setSheet(null)} />}
+      {sheet === 'personas' && people && <PersonasSheet people={people} me={user?.id} onPeople={setPeople} onClose={() => setSheet(null)} />}
+      {sheet === 'codigo' && ajustes?.codigo_registro && <CodigoSheet value={ajustes.codigo_registro} onClose={() => setSheet(null)} />}
       {sheet === 'links' && (
         <Sheet modal onClose={() => setSheet(null)} label="Enlaces solo ver">
           <SheetHeader title="Enlaces «solo ver»" subtitle="Uno por persona: ve todo en vivo y no puede cambiar nada." />
