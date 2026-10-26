@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kubica · Inventario de bodega en 3D para marcas de ropa y calzado</title>
+<meta name="description" content="Kubica te muestra tu bodega en 3D y te dice en qué canasta o perchero está cada talla. Recibes, guardas y despachas desde el celular. Para marcas de ropa y calzado en Colombia.">
+<meta name="theme-color" content="#15171C">
+<meta name="color-scheme" content="light">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kubica · Cada talla en su lugar">
+<meta property="og:description" content="Inventario de bodega en 3D para marcas de ropa y calzado. Escanea con el celular, recibe con foto y encuentra cualquier talla en segundos.">
+<meta property="og:locale" content="es_CO">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15171C; --ink-2:#2A2D33; --paper:#F6F3EC; --white:#FFFFFF;
+  --accent:#F5B700; --accent-press:#E0A800; --accent-soft:#FFF4D1; --accent-deep:#8A5A00;
+  --muted:#5F5C55; --line:#E1DCD1; --line-2:#D3CDC0;
+  --font:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --wrap:1160px; --gutter:clamp(16px,4vw,40px); --r:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.55 var(--font);overflow-x:hidden}
+img,svg{display:block;max-width:100%}
+[hidden]{display:none!important}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--white);padding:8px 14px;border-radius:8px;z-index:20}
+.skip:focus{left:8px}
+
+/* tipografia: Archivo ancho y en mayusculas solo para titulos */
+.display{font-weight:800;font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;line-height:.94;margin:0}
+h1.display{font-size:clamp(2.7rem,7.4vw,5.6rem)}
+h2.display{font-size:clamp(1.85rem,4.2vw,3rem)}
+.lede{font-size:clamp(1.08rem,1.6vw,1.25rem);color:var(--ink-2);max-width:34em}
+.mono{font-family:var(--mono)}
+.eyebrow{font:500 .8rem/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:12px;font:700 1rem/1 var(--font);text-decoration:none;border:2px solid var(--ink);cursor:pointer;transition:background .15s,transform .15s}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-main{background:var(--accent);color:var(--ink)}
+.btn-main:hover{background:var(--accent-press)}
+.btn-line{background:transparent;color:var(--ink)}
+.btn-line:hover{background:var(--white)}
+.btn:active{transform:translateY(1px)}
+
+/* barra de arriba */
+.top{position:sticky;top:0;z-index:10;background:rgba(246,243,236,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .2s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand svg{width:30px;height:30px}
+.wordmark{font-weight:800;font-stretch:125%;text-transform:uppercase;letter-spacing:.04em;font-size:1.25rem}
+.nav{display:flex;gap:26px;margin-left:auto}
+.nav a{text-decoration:none;font-weight:600;font-size:.95rem;color:var(--ink-2)}
+.nav a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:2px;text-decoration-color:var(--accent)}
+.top .btn{min-height:42px;padding:0 16px;font-size:.92rem}
+@media (max-width:820px){.nav{display:none}.top .btn{margin-left:auto}}
+
+/* portada */
+.hero{padding:clamp(36px,6vw,80px) 0 clamp(40px,6vw,72px)}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+.hero h1{margin-bottom:24px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0 14px}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0;padding:0;list-style:none}
+.facts li{font:500 .8rem/1 var(--mono);padding:9px 12px;border:1px solid var(--line-2);border-radius:999px;background:rgba(255,255,255,.55);color:var(--ink-2)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+
+/* la estanteria que busca (la firma de la pagina) */
+.finder-art{position:relative;margin:0;aspect-ratio:600/470;width:100%}
+.finder-art svg.shelf{width:100%;height:100%}
+.shelf polygon{stroke:var(--ink);stroke-width:1.1;stroke-linejoin:round}
+.shelf .floor{fill:rgba(21,23,28,.07);stroke:none}
+.shelf .post{stroke:var(--ink);stroke-width:3.4;stroke-linecap:round}
+.shelf .board{fill:#EFEADF}
+.shelf .board-edge{fill:var(--ink-2)}
+.shelf .board-side{fill:var(--ink)}
+.shelf .inside{fill:#CBC3B4}
+.shelf .stuff{fill:#B3AA9B;stroke-width:.8}
+.shelf .side{fill:#E4DED2}
+.shelf .front{fill:var(--white)}
+.shelf .tag{fill:#EFEADF;stroke:none}
+.shelf .tag-t{font:600 7.4px var(--mono);fill:var(--muted)}
+.shelf .bin polygon,.shelf .bin rect,.shelf .bin text{transition:fill .35s ease}
+.shelf .bin.on .front{fill:var(--accent)}
+.shelf .bin.on .side{fill:var(--accent-press)}
+.shelf .bin.on .inside{fill:#9C7A1E}
+.shelf .bin.on .stuff{fill:#C9A23A}
+.shelf .bin.on .tag{fill:var(--ink)}
+.shelf .bin.on .tag-t{fill:var(--accent)}
+.shelf .lead-halo{fill:none;stroke:var(--paper);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.shelf .lead{fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shelf .dot{fill:var(--ink)}
+/* se mueven solo despues del primer dibujo, para que no entren volando */
+.finder-art.ready .lead-halo,.finder-art.ready .lead{transition:d .45s ease}
+.finder-art.ready .dot{transition:cx .45s ease,cy .45s ease}
+.label{position:absolute;left:62%;top:27%;width:min(250px,38%);background:var(--white);border:2px solid var(--ink);border-radius:12px;box-shadow:4px 4px 0 var(--ink);overflow:hidden;transition:opacity .2s ease,transform .2s ease}
+.label.swap{opacity:0;transform:translateY(5px)}
+.label-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--accent);border-bottom:2px solid var(--ink);padding:8px 12px}
+.label-code{font:600 clamp(.85rem,1.6vw,1.05rem)/1 var(--mono);letter-spacing:.02em}
+.bars{display:flex;gap:2px;height:16px;align-items:stretch}
+.bars i{display:block;width:2px;background:var(--ink)}
+.bars i:nth-child(3n){width:1px}.bars i:nth-child(4n){width:3px}
+.label-body{padding:10px 12px 12px}
+.label-name{font-weight:700;font-size:clamp(.82rem,1.5vw,1rem);line-height:1.2;margin:0 0 4px}
+.label-meta{font:500 clamp(.7rem,1.2vw,.82rem)/1.3 var(--mono);color:var(--muted);margin:0}
+.label-found{font:600 .68rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-deep);margin:0 0 6px}
+@media (max-width:520px){.label{left:57%;width:41%;border-radius:10px;box-shadow:3px 3px 0 var(--ink)}.label-head{padding:6px 8px}.label-body{padding:7px 8px 9px}.bars{display:none}.label-found{font-size:.6rem}}
+
+/* secciones */
+.sec{padding:clamp(56px,8vw,104px) 0;scroll-margin-top:68px}
+.sec-head{max-width:760px;margin-bottom:clamp(28px,4vw,48px)}
+.sec-head p{color:var(--ink-2);margin:16px 0 0;max-width:36em}
+.band{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+/* asi trabaja: es un orden real, por eso va numerado */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;list-style:none;margin:0;padding:0;counter-reset:paso}
+.steps li{position:relative;padding:22px 24px 6px 0;border-top:2px solid var(--ink)}
+.steps li+li{padding-left:24px;border-left:1px solid var(--line)}
+.step-n{display:inline-flex;align-items:center;gap:8px;font:600 .8rem/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.step-n b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--ink);font-weight:600}
+.steps h3{font-size:1.2rem;line-height:1.2;margin:0 0 8px}
+.steps p{margin:0;color:var(--ink-2);font-size:1rem}
+@media (max-width:900px){.steps{grid-template-columns:1fr 1fr;row-gap:28px}.steps li:nth-child(3){padding-left:0;border-left:0}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}.steps li,.steps li+li{padding-left:0;border-left:0}}
+
+/* lo que trae */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.band .card{background:var(--paper)}
+.card-ico{display:grid;place-items:center;width:44px;height:44px;border-radius:11px;background:var(--accent-soft);border:1px solid #F0DC9A;margin-bottom:16px}
+.card-ico svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:1.15rem;line-height:1.25;margin:0 0 8px}
+.card p{margin:0;color:var(--ink-2);font-size:1rem}
+.also{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:28px 0 0;padding:0;list-style:none}
+.also .also-t{font-weight:700;margin-right:4px}
+.also li:not(.also-t){font-size:.95rem;padding:7px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+@media (max-width:900px){.cards{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.cards{grid-template-columns:1fr}}
+
+/* para quien */
+.who{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(28px,5vw,72px);align-items:start}
+.who-text p{font-size:1.125rem;color:var(--ink-2);margin:20px 0 0;max-width:30em}
+.fit{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px}
+.fit h3{font:600 .8rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.fit ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.fit li{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start}
+.fit li svg{width:22px;height:22px;margin-top:2px}
+@media (max-width:860px){.who{grid-template-columns:1fr}}
+
+/* precios */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.plan{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line-2);border-radius:18px;padding:30px}
+.plan.pro{border:2px solid var(--ink);box-shadow:6px 6px 0 var(--accent)}
+.plan-name{font-weight:800;font-stretch:125%;text-transform:uppercase;font-size:1.35rem;margin:0}
+.plan-for{color:var(--muted);margin:6px 0 22px}
+.price{display:flex;align-items:baseline;gap:8px;margin:0 0 24px}
+.price b{font-weight:800;font-stretch:112%;font-size:clamp(2.4rem,5vw,3.2rem);line-height:1;letter-spacing:-.02em}
+.price span{font:500 .95rem/1 var(--mono);color:var(--muted)}
+.plan ul{list-style:none;margin:0 0 28px;padding:0;display:grid;gap:11px}
+.plan li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:1rem}
+.plan li svg{width:18px;height:18px;margin-top:3px}
+.plan li.plus{display:block;font-weight:700}
+.plan .btn{margin-top:auto}
+.setup{display:grid;grid-template-columns:1fr auto;gap:12px 32px;align-items:center;margin-top:18px;background:var(--accent-soft);border:1px solid #F0DC9A;border-radius:18px;padding:24px 30px}
+.setup h3{font-size:1.15rem;margin:0 0 6px}
+.setup p{margin:0;color:var(--ink-2)}
+.setup .price{margin:0;justify-content:flex-end;text-align:right;flex-wrap:wrap}
+.setup .price b{font-size:clamp(1.7rem,3vw,2.1rem)}
+.fine{font-size:.92rem;color:var(--muted);margin:18px 0 0}
+@media (max-width:760px){.plans{grid-template-columns:1fr}.setup{grid-template-columns:1fr}.setup .price{justify-content:flex-start;text-align:left}}
+
+/* preguntas */
+.faq{max-width:820px;display:grid;gap:10px}
+.faq details{background:var(--white);border:1px solid var(--line);border-radius:12px}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 22px;font-weight:700;font-size:1.06rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:12px;height:12px;border-right:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.faq details p{margin:0;padding:0 22px 20px;color:var(--ink-2)}
+
+/* contacto */
+.contact{background:var(--ink);color:var(--white);padding:clamp(56px,8vw,96px) 0;scroll-margin-top:68px}
+.contact .wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,5vw,64px);align-items:center}
+.contact p{color:#CFCBC2;font-size:1.125rem;margin:18px 0 0;max-width:30em}
+.contact .btns{display:grid;gap:12px}
+.contact .btn{min-height:58px;font-size:1.05rem}
+.contact .btn-line{color:var(--white);border-color:#5A5E66}
+.contact .btn-line:hover{background:var(--ink-2)}
+.contact .via{display:block;font:500 .85rem/1.4 var(--mono);color:#A9A59C;margin-top:4px;text-align:center}
+@media (max-width:860px){.contact .wrap{grid-template-columns:1fr}}
+
+footer{background:var(--ink);color:#A9A59C;border-top:1px solid #2A2D33}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-top:22px;padding-bottom:22px;font-size:.92rem}
+footer .brand{color:var(--white)}
+footer .brand svg{width:24px;height:24px}
+footer .wordmark{font-size:1rem}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Ir al contenido</a>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Kubica, inicio">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l10.5 6L14 15 3.5 9z" fill="#F5B700" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 9L14 15v11.5L3.5 20.5z" fill="#fff" fill-opacity=".92" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/><path d="M24.5 9L14 15v11.5l10.5-6z" fill="#fff" fill-opacity=".42" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/></svg>
+      <span class="wordmark">Kubica</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#precios">Precios</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn btn-main" data-whatsapp href="#contacto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</header>
+
+<main id="contenido">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Inventario de bodega para marcas de ropa y calzado</p>
+        <h1 class="display">Cada talla en su lugar</h1>
+        <p class="lede">Kubica te muestra tu bodega en 3D y te dice en qué canasta o perchero está cada referencia, talla por talla. Recibes, guardas y despachas desde el celular, sin buscar.</p>
+        <div class="actions">
+          <a class="btn btn-main" data-whatsapp href="#contacto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
+            Escribir por WhatsApp
+          </a>
+          <a class="btn btn-line" href="#precios">Ver precios</a>
+        </div>
+        <p class="note">El primer mes es gratis para las primeras marcas.</p>
+        <ul class="facts" aria-label="Lo básico">
+          <li>En el celular y el computador</li>
+          <li>Sin lectores ni equipos</li>
+          <li>Sigue funcionando sin señal</li>
+        </ul>
+      </div>
+
+      <figure class="finder-art" role="img" aria-label="Una estantería de canastas dibujada en 3D. Una canasta se ilumina en amarillo y una etiqueta dice dónde está la prenda: C-3-2, chaqueta impermeable, talla M, 4 unidades.">
+        <svg class="shelf" viewBox="0 0 600 470" aria-hidden="true">
+<polygon class="floor" points="101.2,257.6 356.2,404.8 264.7,457.6 9.8,310.4"/>
+<line class="post" x1="104.0" y1="272.0" x2="104.0" y2="16.0"/>
+<line class="post" x1="325.7" y1="400.0" x2="325.7" y2="144.0"/>
+<polygon class="board" points="104.0,272.0 325.7,400.0 270.3,432.0 48.6,304.0"/>
+<polygon class="board-edge" points="48.6,304.0 270.3,432.0 270.3,436.5 48.6,308.5"/>
+<polygon class="board-side" points="325.7,400.0 270.3,432.0 270.3,436.5 325.7,404.5"/>
+<g class="bin" id="bin-C-1-1" data-code="C-1-1"><polygon class="inside" points="102.3,240.3 147.8,266.6 102.3,292.8 56.9,266.6"/><polygon class="stuff" points="101.2,251.2 135.6,271.0 104.6,289.0 70.2,269.1"/><polygon class="side" points="147.8,305.0 102.3,331.2 102.3,292.8 147.8,266.6"/><polygon class="front" points="56.9,305.0 102.3,331.2 102.3,292.8 56.9,266.6"/><g transform="matrix(0.8660,0.5,0,1,56.9,266.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-1-1</text></g><circle class="anchor" cx="79.6" cy="298.9" r="0"/></g>
+<g class="bin" id="bin-C-2-1" data-code="C-2-1"><polygon class="inside" points="157.8,272.3 203.2,298.6 157.8,324.8 112.3,298.6"/><polygon class="stuff" points="156.7,283.2 191.0,303.0 160.0,321.0 125.6,301.1"/><polygon class="side" points="203.2,337.0 157.8,363.2 157.8,324.8 203.2,298.6"/><polygon class="front" points="112.3,337.0 157.8,363.2 157.8,324.8 112.3,298.6"/><g transform="matrix(0.8660,0.5,0,1,112.3,298.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-2-1</text></g><circle class="anchor" cx="135.0" cy="330.9" r="0"/></g>
+<g class="bin" id="bin-C-3-1" data-code="C-3-1"><polygon class="inside" points="213.2,304.3 258.6,330.6 213.2,356.8 167.7,330.6"/><polygon class="stuff" points="212.1,315.2 246.4,335.0 215.4,353.0 181.0,333.1"/><polygon class="side" points="258.6,369.0 213.2,395.2 213.2,356.8 258.6,330.6"/><polygon class="front" points="167.7,369.0 213.2,395.2 213.2,356.8 167.7,330.6"/><g transform="matrix(0.8660,0.5,0,1,167.7,330.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-3-1</text></g><circle class="anchor" cx="190.5" cy="362.9" r="0"/></g>
+<g class="bin" id="bin-C-4-1" data-code="C-4-1"><polygon class="inside" points="268.6,336.3 314.1,362.6 268.6,388.8 223.2,362.6"/><polygon class="stuff" points="267.5,347.2 301.9,367.0 270.8,385.0 236.5,365.1"/><polygon class="side" points="314.1,401.0 268.6,427.2 268.6,388.8 314.1,362.6"/><polygon class="front" points="223.2,401.0 268.6,427.2 268.6,388.8 223.2,362.6"/><g transform="matrix(0.8660,0.5,0,1,223.2,362.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-4-1</text></g><circle class="anchor" cx="245.9" cy="394.9" r="0"/></g>
+<polygon class="board" points="104.0,208.0 325.7,336.0 270.3,368.0 48.6,240.0"/>
+<polygon class="board-edge" points="48.6,240.0 270.3,368.0 270.3,372.5 48.6,244.5"/>
+<polygon class="board-side" points="325.7,336.0 270.3,368.0 270.3,372.5 325.7,340.5"/>
+<g class="bin" id="bin-C-1-2" data-code="C-1-2"><polygon class="inside" points="102.3,176.3 147.8,202.6 102.3,228.8 56.9,202.6"/><polygon class="stuff" points="101.2,187.2 135.6,207.0 104.6,225.0 70.2,205.1"/><polygon class="side" points="147.8,241.0 102.3,267.2 102.3,228.8 147.8,202.6"/><polygon class="front" points="56.9,241.0 102.3,267.2 102.3,228.8 56.9,202.6"/><g transform="matrix(0.8660,0.5,0,1,56.9,202.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-1-2</text></g><circle class="anchor" cx="79.6" cy="234.9" r="0"/></g>
+<g class="bin" id="bin-C-2-2" data-code="C-2-2"><polygon class="inside" points="157.8,208.3 203.2,234.6 157.8,260.8 112.3,234.6"/><polygon class="stuff" points="156.7,219.2 191.0,239.0 160.0,257.0 125.6,237.1"/><polygon class="side" points="203.2,273.0 157.8,299.2 157.8,260.8 203.2,234.6"/><polygon class="front" points="112.3,273.0 157.8,299.2 157.8,260.8 112.3,234.6"/><g transform="matrix(0.8660,0.5,0,1,112.3,234.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-2-2</text></g><circle class="anchor" cx="135.0" cy="266.9" r="0"/></g>
+<g class="bin" id="bin-C-3-2" data-code="C-3-2"><polygon class="inside" points="213.2,240.3 258.6,266.6 213.2,292.8 167.7,266.6"/><polygon class="stuff" points="212.1,251.2 246.4,271.0 215.4,289.0 181.0,269.1"/><polygon class="side" points="258.6,305.0 213.2,331.2 213.2,292.8 258.6,266.6"/><polygon class="front" points="167.7,305.0 213.2,331.2 213.2,292.8 167.7,266.6"/><g transform="matrix(0.8660,0.5,0,1,167.7,266.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-3-2</text></g><circle class="anchor" cx="190.5" cy="298.9" r="0"/></g>
+<g class="bin" id="bin-C-4-2" data-code="C-4-2"><polygon class="inside" points="268.6,272.3 314.1,298.6 268.6,324.8 223.2,298.6"/><polygon class="stuff" points="267.5,283.2 301.9,303.0 270.8,321.0 236.5,301.1"/><polygon class="side" points="314.1,337.0 268.6,363.2 268.6,324.8 314.1,298.6"/><polygon class="front" points="223.2,337.0 268.6,363.2 268.6,324.8 223.2,298.6"/><g transform="matrix(0.8660,0.5,0,1,223.2,298.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-4-2</text></g><circle class="anchor" cx="245.9" cy="330.9" r="0"/></g>
+<polygon class="board" points="104.0,144.0 325.7,272.0 270.3,304.0 48.6,176.0"/>
+<polygon class="board-edge" points="48.6,176.0 270.3,304.0 270.3,308.5 48.6,180.5"/>
+<polygon class="board-side" points="325.7,272.0 270.3,304.0 270.3,308.5 325.7,276.5"/>
+<g class="bin" id="bin-C-1-3" data-code="C-1-3"><polygon class="inside" points="102.3,112.3 147.8,138.6 102.3,164.8 56.9,138.6"/><polygon class="stuff" points="101.2,123.2 135.6,143.0 104.6,161.0 70.2,141.1"/><polygon class="side" points="147.8,177.0 102.3,203.2 102.3,164.8 147.8,138.6"/><polygon class="front" points="56.9,177.0 102.3,203.2 102.3,164.8 56.9,138.6"/><g transform="matrix(0.8660,0.5,0,1,56.9,138.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-1-3</text></g><circle class="anchor" cx="79.6" cy="170.9" r="0"/></g>
+<g class="bin" id="bin-C-2-3" data-code="C-2-3"><polygon class="inside" points="157.8,144.3 203.2,170.6 157.8,196.8 112.3,170.6"/><polygon class="stuff" points="156.7,155.2 191.0,175.0 160.0,193.0 125.6,173.1"/><polygon class="side" points="203.2,209.0 157.8,235.2 157.8,196.8 203.2,170.6"/><polygon class="front" points="112.3,209.0 157.8,235.2 157.8,196.8 112.3,170.6"/><g transform="matrix(0.8660,0.5,0,1,112.3,170.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-2-3</text></g><circle class="anchor" cx="135.0" cy="202.9" r="0"/></g>
+<g class="bin" id="bin-C-3-3" data-code="C-3-3"><polygon class="inside" points="213.2,176.3 258.6,202.6 213.2,228.8 167.7,202.6"/><polygon class="stuff" points="212.1,187.2 246.4,207.0 215.4,225.0 181.0,205.1"/><polygon class="side" points="258.6,241.0 213.2,267.2 213.2,228.8 258.6,202.6"/><polygon class="front" points="167.7,241.0 213.2,267.2 213.2,228.8 167.7,202.6"/><g transform="matrix(0.8660,0.5,0,1,167.7,202.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-3-3</text></g><circle class="anchor" cx="190.5" cy="234.9" r="0"/></g>
+<g class="bin" id="bin-C-4-3" data-code="C-4-3"><polygon class="inside" points="268.6,208.3 314.1,234.6 268.6,260.8 223.2,234.6"/><polygon class="stuff" points="267.5,219.2 301.9,239.0 270.8,257.0 236.5,237.1"/><polygon class="side" points="314.1,273.0 268.6,299.2 268.6,260.8 314.1,234.6"/><polygon class="front" points="223.2,273.0 268.6,299.2 268.6,260.8 223.2,234.6"/><g transform="matrix(0.8660,0.5,0,1,223.2,234.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-4-3</text></g><circle class="anchor" cx="245.9" cy="266.9" r="0"/></g>
+<polygon class="board" points="104.0,80.0 325.7,208.0 270.3,240.0 48.6,112.0"/>
+<polygon class="board-edge" points="48.6,112.0 270.3,240.0 270.3,244.5 48.6,116.5"/>
+<polygon class="board-side" points="325.7,208.0 270.3,240.0 270.3,244.5 325.7,212.5"/>
+<g class="bin" id="bin-C-1-4" data-code="C-1-4"><polygon class="inside" points="102.3,48.3 147.8,74.6 102.3,100.8 56.9,74.6"/><polygon class="stuff" points="101.2,59.2 135.6,79.0 104.6,97.0 70.2,77.1"/><polygon class="side" points="147.8,113.0 102.3,139.2 102.3,100.8 147.8,74.6"/><polygon class="front" points="56.9,113.0 102.3,139.2 102.3,100.8 56.9,74.6"/><g transform="matrix(0.8660,0.5,0,1,56.9,74.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-1-4</text></g><circle class="anchor" cx="79.6" cy="106.9" r="0"/></g>
+<g class="bin" id="bin-C-2-4" data-code="C-2-4"><polygon class="inside" points="157.8,80.3 203.2,106.6 157.8,132.8 112.3,106.6"/><polygon class="stuff" points="156.7,91.2 191.0,111.0 160.0,129.0 125.6,109.1"/><polygon class="side" points="203.2,145.0 157.8,171.2 157.8,132.8 203.2,106.6"/><polygon class="front" points="112.3,145.0 157.8,171.2 157.8,132.8 112.3,106.6"/><g transform="matrix(0.8660,0.5,0,1,112.3,106.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-2-4</text></g><circle class="anchor" cx="135.0" cy="138.9" r="0"/></g>
+<g class="bin" id="bin-C-3-4" data-code="C-3-4"><polygon class="inside" points="213.2,112.3 258.6,138.6 213.2,164.8 167.7,138.6"/><polygon class="stuff" points="212.1,123.2 246.4,143.0 215.4,161.0 181.0,141.1"/><polygon class="side" points="258.6,177.0 213.2,203.2 213.2,164.8 258.6,138.6"/><polygon class="front" points="167.7,177.0 213.2,203.2 213.2,164.8 167.7,138.6"/><g transform="matrix(0.8660,0.5,0,1,167.7,138.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-3-4</text></g><circle class="anchor" cx="190.5" cy="170.9" r="0"/></g>
+<g class="bin" id="bin-C-4-4" data-code="C-4-4"><polygon class="inside" points="268.6,144.3 314.1,170.6 268.6,196.8 223.2,170.6"/><polygon class="stuff" points="267.5,155.2 301.9,175.0 270.8,193.0 236.5,173.1"/><polygon class="side" points="314.1,209.0 268.6,235.2 268.6,196.8 314.1,170.6"/><polygon class="front" points="223.2,209.0 268.6,235.2 268.6,196.8 223.2,170.6"/><g transform="matrix(0.8660,0.5,0,1,223.2,170.6)"><rect class="tag" x="7.7" y="10.2" width="32.0" height="12.8" rx="1.5"/><text class="tag-t" x="11.7" y="18.8">C-4-4</text></g><circle class="anchor" cx="245.9" cy="202.9" r="0"/></g>
+<polygon class="board" points="104.0,16.0 325.7,144.0 270.3,176.0 48.6,48.0"/>
+<polygon class="board-edge" points="48.6,48.0 270.3,176.0 270.3,180.5 48.6,52.5"/>
+<polygon class="board-side" points="325.7,144.0 270.3,176.0 270.3,180.5 325.7,148.5"/>
+<line class="post post-front" x1="48.6" y1="308.5" x2="48.6" y2="48.0"/>
+<line class="post post-front" x1="270.3" y1="436.5" x2="270.3" y2="176.0"/>
+          <path class="lead-halo" d=""/>
+          <path class="lead" d=""/>
+          <circle class="dot" r="4.5" cx="0" cy="0"/>
+        </svg>
+        <div class="label" aria-hidden="true">
+          <div class="label-head">
+            <span class="label-code" data-f="code">C-3-2</span>
+            <span class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="label-body">
+            <p class="label-found">Está aquí</p>
+            <p class="label-name" data-f="name">Chaqueta impermeable</p>
+            <p class="label-meta" data-f="meta">Talla M · 4 unidades</p>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec band" id="como-funciona">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Así trabaja tu bodega con Kubica</h2>
+        <p>Del camión del proveedor hasta el despacho, cada prenda queda registrada y en su sitio.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <span class="step-n"><b>1</b></span>
+          <h3>Recibes la mercancía</h3>
+          <p>Registras la remisión del proveedor y le tomas foto. Kubica te sugiere dónde guardar cada talla.</p>
+        </li>
+        <li>
+          <span class="step-n"><b>2</b></span>
+          <h3>Cada talla en su canasta</h3>
+          <p>Cada talla queda en su canasta o perchero, sin mezclarse con otras.</p>
+        </li>
+        <li>
+          <span class="step-n"><b>3</b></span>
+          <h3>La ubicas en segundos</h3>
+          <p>Escaneas el código con la cámara o buscas por nombre, y la bodega en 3D te marca el sitio exacto.</p>
+        </li>
+        <li>
+          <span class="step-n"><b>4</b></span>
+          <h3>Despachas sin errores</h3>
+          <p>Descuentas la factura con su foto y el inventario queda al día para todo el equipo.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="funciones">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Toda la bodega, en una sola app</h2>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l9 5.2v8.6l-9 5.2-9-5.2V7.7z"/><path d="M3 7.7l9 5.2 9-5.2M12 12.9v8.6"/></svg></div>
+          <h3>Tu bodega en 3D</h3>
+          <p>Percheros, estanterías y canastas como están en la realidad. La armas y la cambias tú mismo.</p>
+        </article>
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/></svg></div>
+          <h3>Escanea con el celular</h3>
+          <p>La cámara lee el código de barras de la etiqueta. No necesitas lectores.</p>
+        </article>
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div>
+          <h3>Remisiones y facturas con foto</h3>
+          <p>Recibes y descuentas con la foto del papel. Las fotos se guardan dos meses.</p>
+        </article>
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v13H3zM3 7l2-4h14l2 4M9 11h6"/></svg></div>
+          <h3>Bodega de reserva</h3>
+          <p>Lo que guardas aparte va por separado, y Kubica te dice qué subir a la bodega cuando se acaba.</p>
+        </article>
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1.5 11h-13zM8 9V7a4 4 0 0 1 8 0v2"/></svg></div>
+          <h3>Conectada a tu tienda en línea</h3>
+          <p>Si tu tienda es Shopify, al escanear un código nuevo se llenan solos el nombre, la foto y el precio.</p>
+        </article>
+        <article class="card">
+          <div class="card-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+          <h3>Reportes en Excel</h3>
+          <p>Qué pedir, lo que más sale, lo que no se mueve y cuánto vale tu inventario.</p>
+        </article>
+      </div>
+      <ul class="also" aria-label="También trae">
+        <li class="also-t">También:</li>
+        <li>Conteos que muestran lo que no cuadra</li>
+        <li>Avisos al celular</li>
+        <li>Enlaces «solo ver» para quien consulta</li>
+        <li>Administradores y operadores</li>
+        <li>Modo oscuro</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec band" id="para-quien">
+    <div class="wrap who">
+      <div class="who-text">
+        <h2 class="display">Hecha en una bodega de verdad</h2>
+        <p>Kubica nació en la bodega de una marca de ropa colombiana, para resolver lo de todos los días: tallas mezcladas, referencias que no aparecen y conteos que no cuadran.</p>
+      </div>
+      <div class="fit">
+        <h3>Es para ti si</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#F5B700" stroke="none"/><path d="M7 12.5l3.2 3.2L17 9"/></svg><span>Vendes ropa, calzado o accesorios con varias tallas.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#F5B700" stroke="none"/><path d="M7 12.5l3.2 3.2L17 9"/></svg><span>Tienes bodega propia y un equipo de 2 a 15 personas.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#F5B700" stroke="none"/><path d="M7 12.5l3.2 3.2L17 9"/></svg><span>Vendes en tienda física, en línea o en las dos.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#F5B700" stroke="none"/><path d="M7 12.5l3.2 3.2L17 9"/></svg><span>Ya usas Siigo, Alegra u otro programa contable: Kubica trabaja al lado.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="precios">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Precios claros, en pesos</h2>
+        <p>Paga mes a mes, o por año con 2 meses gratis. Las primeras marcas tienen el primer mes gratis.</p>
+      </div>
+      <div class="plans">
+        <article class="plan">
+          <h3 class="plan-name">Bodega</h3>
+          <p class="plan-for">Para una bodega y un equipo pequeño.</p>
+          <p class="price"><b>$149.000</b><span>al mes</span></p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Una bodega en 3D</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Hasta 5 personas</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Escaneo, remisiones y facturas con foto</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Conteos y reportes en Excel</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Enlaces «solo ver» sin límite</li>
+          </ul>
+          <a class="btn btn-line" data-whatsapp="Hola, me interesa el plan Bodega de Kubica." href="#contacto">Quiero el plan Bodega</a>
+        </article>
+        <article class="plan pro">
+          <h3 class="plan-name">Pro</h3>
+          <p class="plan-for">Para bodega con reserva y tienda en línea.</p>
+          <p class="price"><b>$249.000</b><span>al mes</span></p>
+          <ul>
+            <li class="plus">Todo lo del plan Bodega, y además:</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Bodega de reserva</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Hasta 15 personas</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Conectada a tu tienda Shopify</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Avisos al celular</li>
+          </ul>
+          <a class="btn btn-main" data-whatsapp="Hola, me interesa el plan Pro de Kubica." href="#contacto">Quiero el plan Pro</a>
+        </article>
+      </div>
+      <div class="setup">
+        <div>
+          <h3>Puesta en marcha</h3>
+          <p>Armamos tu bodega en 3D con tus muebles, cargamos tu inventario y le enseñamos a tu equipo.</p>
+        </div>
+        <p class="price"><span>desde</span><b>$500.000</b><span>un solo pago</span></p>
+      </div>
+      <p class="fine">Precios en pesos colombianos.</p>
+    </div>
+  </section>
+
+  <section class="sec band" id="preguntas">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="display">Preguntas frecuentes</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>¿Reemplaza mi programa contable?</summary>
+          <p>No. Kubica se encarga de la bodega: dónde está cada cosa y cuánto hay. La contabilidad y la facturación electrónica siguen en Siigo, Alegra o el programa que ya usas.</p>
+        </details>
+        <details>
+          <summary>¿Tengo que comprar equipos?</summary>
+          <p>No. Funciona en el navegador del celular y del computador, y se puede instalar como app. La cámara del celular lee los códigos de barras.</p>
+        </details>
+        <details>
+          <summary>¿Qué pasa si se va la señal en la bodega?</summary>
+          <p>Sigues viendo lo último que se cargó, y lo que registres sin señal se sube solo cuando vuelva.</p>
+        </details>
+        <details>
+          <summary>¿Quién arma la bodega en 3D?</summary>
+          <p>Nosotros, en la puesta en marcha, con tus medidas y tus muebles. Después la puedes cambiar tú desde la app.</p>
+        </details>
+        <details>
+          <summary>¿Puedo sacar mis datos?</summary>
+          <p>Sí. Descargas el respaldo del inventario y del historial, en archivos para Excel, cuando quieras.</p>
+        </details>
+        <details>
+          <summary>¿Puedo verla antes de pagar?</summary>
+          <p>Sí. Te la mostramos con una bodega de ejemplo, y las primeras marcas tienen el primer mes gratis.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="contact" id="contacto">
+  <div class="wrap">
+    <div>
+      <h2 class="display">Mira tu bodega en Kubica</h2>
+      <p>Escríbenos y te mostramos Kubica con una bodega de ejemplo, por videollamada.</p>
+    </div>
+    <div class="btns">
+      <a class="btn btn-main" data-whatsapp href="#contacto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        Escribir por WhatsApp
+      </a>
+      <a class="btn btn-line" data-correo href="#contacto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
+        Enviar un correo
+      </a>
+      <span class="via" data-via></span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Kubica, volver arriba">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3l10.5 6L14 15 3.5 9z" fill="#F5B700" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 9L14 15v11.5L3.5 20.5z" fill="#fff" fill-opacity=".92" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/><path d="M24.5 9L14 15v11.5l10.5-6z" fill="#fff" fill-opacity=".42" stroke="#15171C" stroke-width="1.1" stroke-linejoin="round"/></svg>
+      <span class="wordmark">Kubica</span>
+    </a>
+    <span>Inventario de bodega · Hecho en Colombia · © 2026</span>
+  </div>
+</footer>
+
+<script>
+// ===== Contacto: cambiar solo aqui =====
+// whatsapp: el numero con indicativo, sin + ni espacios (ej.: 573001234567)
+const CONTACTO = {
+  whatsapp: '',
+  correo: '',
+}
+const SALUDO = 'Hola, quiero ver Kubica para mi bodega.'
+
+;(function contacto() {
+  document.querySelectorAll('[data-whatsapp]').forEach((a) => {
+    if (!CONTACTO.whatsapp) return
+    const texto = a.getAttribute('data-whatsapp') || SALUDO
+    a.href = `https://wa.me/${CONTACTO.whatsapp}?text=${encodeURIComponent(texto)}`
+    a.target = '_blank'
+    a.rel = 'noopener'
+  })
+  document.querySelectorAll('[data-correo]').forEach((a) => {
+    if (!CONTACTO.correo) { a.hidden = true; return }
+    a.href = `mailto:${CONTACTO.correo}?subject=${encodeURIComponent('Quiero ver Kubica')}`
+  })
+  const via = document.querySelector('[data-via]')
+  if (via) {
+    const tel = CONTACTO.whatsapp.replace(/^57(\d{3})(\d{3})(\d{4})$/, '+57 $1 $2 $3')
+    via.textContent = [tel, CONTACTO.correo].filter(Boolean).join(' · ')
+  }
+})()
+
+// la barra de arriba muestra su borde al bajar
+;(function barra() {
+  const top = document.getElementById('top')
+  const on = () => top.classList.toggle('scrolled', window.scrollY > 8)
+  on()
+  window.addEventListener('scroll', on, { passive: true })
+})()
+
+// la estanteria: una canasta se enciende y la etiqueta dice que hay ahi
+;(function buscador() {
+  const ITEMS = [
+    { code: 'C-3-2', name: 'Chaqueta impermeable', meta: 'Talla M · 4 unidades' },
+    { code: 'C-1-4', name: 'Jean slim azul', meta: 'Talla 32 · 7 unidades' },
+    { code: 'C-4-1', name: 'Tenis blancos', meta: 'Talla 40 · 2 unidades' },
+  ]
+  const art = document.querySelector('.finder-art')
+  const svg = art.querySelector('svg')
+  const label = art.querySelector('.label')
+  const lead = svg.querySelector('.lead')
+  const halo = svg.querySelector('.lead-halo')
+  const dot = svg.querySelector('.dot')
+  const field = (f) => label.querySelector(`[data-f="${f}"]`)
+  let i = 0
+
+  // punto de la etiqueta (borde izquierdo, a la altura del codigo) en coordenadas del dibujo
+  const labelPoint = () => {
+    const s = svg.getBoundingClientRect()
+    const l = label.getBoundingClientRect()
+    const k = 600 / s.width
+    return { x: (l.left - s.left) * k - 2, y: (l.top - s.top + l.height * 0.32) * k }
+  }
+
+  const draw = () => {
+    const item = ITEMS[i]
+    const a = svg.querySelector(`#bin-${item.code} .anchor`)
+    const ax = +a.getAttribute('cx'), ay = +a.getAttribute('cy')
+    const p = labelPoint()
+    const elbow = Math.min(p.x - 16, 370)
+    const d = `M ${ax} ${ay} H ${elbow} L ${p.x} ${p.y}`
+    for (const el of [lead, halo]) {
+      el.setAttribute('d', d)
+      el.style.d = `path("${d}")`
+    }
+    dot.setAttribute('cx', ax); dot.setAttribute('cy', ay)
+  }
+
+  const show = () => {
+    const item = ITEMS[i]
+    svg.querySelectorAll('.bin.on').forEach((b) => b.classList.remove('on'))
+    svg.querySelector(`#bin-${item.code}`).classList.add('on')
+    field('code').textContent = item.code
+    field('name').textContent = item.name
+    field('meta').textContent = item.meta
+    draw()
+  }
+
+  show()
+  requestAnimationFrame(() => art.classList.add('ready'))
+  window.addEventListener('resize', draw)
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  setInterval(() => {
+    if (document.hidden) return
+    label.classList.add('swap')
+    setTimeout(() => {
+      i = (i + 1) % ITEMS.length
+      show()
+      label.classList.remove('swap')
+    }, 200)
+  }, 3400)
+})()
+</script>
+</body>
+</html>

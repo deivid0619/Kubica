@@ -277,6 +277,10 @@ frontend/
                           facturas, documentos, conteo, reserva, despacho,
                           resumen, reportes, avisos, configuracion, auth
     styles/global.css     estilos generales (cada modulo puede traer los suyos)
+
+landing/                  la pagina de presentacion de Kubica (HTML suelto, sin
+                          construir): que hace, precios y contacto. El WhatsApp
+                          y el correo se cambian al final de index.html (CONTACTO)
 ```
 
 ## Variables del servidor (`backend/.env`)
