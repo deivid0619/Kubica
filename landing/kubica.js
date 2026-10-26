@@ -9,6 +9,13 @@ const CONTACTO = {
   correo: 'kubicacol@gmail.com',
 }
 
+// ===== La demo publica (render-demo.yaml en el repo): cambiar solo aqui =====
+// app: donde se abre (entra sola como "solo ver"); api: su servidor
+const DEMO = {
+  app: 'https://kubica-demo.onrender.com/?ver=demo',
+  api: 'https://kubica-demo-api.onrender.com',
+}
+
 ;(function contacto() {
   document.querySelectorAll('[data-whatsapp]').forEach((a) => {
     if (!CONTACTO.whatsapp) return
@@ -26,6 +33,27 @@ const CONTACTO = {
     const tel = CONTACTO.whatsapp.replace(/^57(\d{3})(\d{3})(\d{4})$/, '+57 $1 $2 $3')
     via.textContent = [tel, CONTACTO.correo].filter(Boolean).join(' · ')
   }
+})()
+
+// los botones "Ver la demo" la abren en otra pestana. Su servidor se duerme si
+// nadie la usa y tarda en despertar: se le avisa con tiempo, una sola vez (a
+// los pocos segundos de abrir la pagina o al acercarse a un boton)
+;(function demo() {
+  const links = document.querySelectorAll('[data-demo]')
+  if (!links.length || !DEMO.app) return
+  let woken = false
+  const wake = () => {
+    if (woken || !DEMO.api) return
+    woken = true
+    fetch(`${DEMO.api}/api/health`, { mode: 'no-cors', cache: 'no-store' }).catch(() => {})
+  }
+  links.forEach((a) => {
+    a.href = DEMO.app
+    a.target = '_blank'
+    a.rel = 'noopener'
+    for (const ev of ['pointerenter', 'focus', 'touchstart']) a.addEventListener(ev, wake, { once: true, passive: true })
+  })
+  setTimeout(wake, 4000)
 })()
 
 // la barra de arriba muestra su borde al bajar

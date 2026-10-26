@@ -12,6 +12,7 @@ import SummaryIndex from './SummaryIndex'
 import MovementSheet, { pairOf } from '../inventario/MovementSheet'
 import PassingSection from '../despacho/Passing'
 import StoreStatus, { PhotoStoreStatus } from './StoreStatus'
+import { DEMO_KEY } from '../../core/demo'
 import { Count, Empty, PageHead, plural } from '../../ui/Bits'
 import MovesList, { lastGroupText } from './MovesList'
 import NeedsList from './NeedsList'
@@ -122,7 +123,7 @@ export default function Summary() {
           <Icon name="arrowRight" size={18} />
         </button>
         <StoreStatus />
-        <PhotoStoreStatus />
+        {!DEMO_KEY && <PhotoStoreStatus />}
 
         <h2 className="h-sec" id="reponer">Por reponer {needs?.length > 0 && <small>lleva cada talla al doble del mínimo</small>}</h2>
         {!needs ? (

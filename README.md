@@ -203,6 +203,18 @@ servicios se pueden crear a mano (New → Web Service para el backend con
 `npm install && npm run build` / carpeta `dist`) usando las mismas
 variables de arriba.
 
+### Demo pública (otra copia, con una bodega de ejemplo)
+
+La página de Kubica tiene un botón **Ver la demo** que abre una copia aparte
+de la app, sin datos de nadie: una bodega inventada (distribución, prendas,
+códigos y ocho semanas de movimientos, en `backend/app/core/demo.py`) que se
+recorre como "Solo ver", sin contraseña. Se crea con su propio blueprint:
+**New → Blueprint → este repo → Blueprint Path `render-demo.yaml`**. Usa
+SQLite en el disco del servicio, que Render borra al dormirlo o desplegarlo:
+en cada arranque se vuelve a armar la bodega de ejemplo con fechas recientes.
+Arriba muestra una barra con el enlace para pedirla por WhatsApp
+(`VITE_DEMO_WHATSAPP`). Nada de esto se activa en una instalación normal.
+
 ## Marca de cada empresa
 
 Kubica tiene su marca propia (grafito y amarillo estantería, letra Archivo
@@ -307,6 +319,7 @@ GitHub.
 | `PHOTO_DAYS` | Opcional. Cuántos días se guardan esas fotos (por defecto 60, dos meses); después se borran solas |
 | `MARCA` | Opcional. La marca (nombre y colores de los Excel y los avisos): vacío o `kubica` la propia, `pigmalion` la de Pigmalion (la misma que `VITE_MARCA` del frontend, ver "Marca de cada empresa") |
 | `SKIP_AUTH` | Solo desarrollo: `true` entra sin iniciar sesión. Nunca en producción |
+| `DEMO_VIEW_KEY` | Solo la demo pública (`render-demo.yaml`): con valor, cada arranque borra todo y arma la bodega de ejemplo, y esa llave entra como "Solo ver" (`/?ver=LLAVE`). Solo funciona con SQLite. Vacío en una instalación de verdad |
 
 En producción, `ADMIN_PASSWORD` y `REGISTRATION_CODE` deben ser distintos a
 los de ejemplo: el repositorio es público.

@@ -1,0 +1,60 @@
+# Blueprint de Render para la DEMO PUBLICA de Kubica: una copia aparte de la
+# app, con una bodega de ejemplo inventada, que cualquiera recorre como "solo
+# ver" desde la pagina de Kubica (boton "Ver la demo"). No toca la app de
+# verdad (render.yaml) ni sus datos.
+# En Render: New > Blueprint > este repo > Blueprint Path: render-demo.yaml.
+#
+# Base SQLite en el disco del servicio: se borra al dormirse o al desplegar, y
+# en cada arranque se vuelve a armar la bodega de ejemplo (backend/app/core/demo.py),
+# asi las fechas siempre son de las ultimas semanas.
+# Si Render le pone otro nombre a algun servicio (porque el nombre ya estaba
+# usado), cambiar CORS_ORIGINS y VITE_API_URL por las direcciones que de.
+services:
+  - type: web
+    name: kubica-demo-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./demo.db
+      # la llave del enlace "solo ver" (la misma que VITE_DEMO_KEY): es publica
+      - key: DEMO_VIEW_KEY
+        value: demo
+      - key: CORS_ORIGINS
+        value: https://kubica-demo.onrender.com
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: REGISTRATION_CODE
+        generateValue: true
+      - key: MARCA
+        value: kubica
+
+  - type: web
+    name: kubica-demo
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    buildFilter:
+      paths:
+        - frontend/**
+    envVars:
+      - key: VITE_API_URL
+        value: https://kubica-demo-api.onrender.com
+      - key: VITE_DEMO_KEY
+        value: demo
+      # "Pídela para tu bodega": el WhatsApp de Kubica, con indicativo y sin +
+      - key: VITE_DEMO_WHATSAPP
+        value: "573196587105"
+    routes:
+      - type: rewrite
+        source: /**
+        destination: /index.html

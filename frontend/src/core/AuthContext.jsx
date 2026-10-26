@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { NO_ACCESS, api, isNetworkError, setAuthToken, setUnauthorizedHandler, setViewOnly } from './api'
 import { clearCache, readUser, writeUser } from './offline'
+import { DEMO_KEY } from './demo'
 
 const AuthContext = createContext(null)
 const STORAGE_KEY = 'bodega_token'
@@ -11,7 +12,8 @@ const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true'
 // celular: si la sesion vence, se vuelve a entrar sola (como una app)
 const viewKey = () => new URLSearchParams(window.location.search).get('ver')
 const VIEW_STORE = 'bodega_ver'
-const storedKey = () => { try { return localStorage.getItem(VIEW_STORE) } catch { return null } }
+// en la demo publica (core/demo.js) sirve la suya aunque no haya ninguna guardada
+const storedKey = () => { try { return localStorage.getItem(VIEW_STORE) || DEMO_KEY } catch { return DEMO_KEY } }
 const forgetKey = () => { try { localStorage.removeItem(VIEW_STORE) } catch { /* sin almacenamiento */ } }
 export const LINK_ERROR = 'bodega_enlace_error'
 export const WELCOME = 'bodega_bienvenida' // "Hola, Gabriel": se muestra una vez al entrar con el enlace
@@ -152,7 +154,7 @@ export function AuthProvider({ children }) {
     }
     const key = fromUrl || (!localStorage.getItem(STORAGE_KEY) && storedKey())
     if (!key) return
-    enterView(key, !!fromUrl)
+    enterView(key, !!fromUrl && !DEMO_KEY) // en la demo, la barra de arriba hace de saludo
       .catch((e) => {
         if (!fromUrl) forgetKey()
         noteError(e)

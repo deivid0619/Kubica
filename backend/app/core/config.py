@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     # iniciado sesion el primer usuario admin, sin pedir login. Nunca poner
     # en true en produccion.
     skip_auth: bool = False
+    # SOLO LA DEMO PUBLICA (render-demo.yaml): con valor, cada arranque borra
+    # todo y arma la bodega de ejemplo (app/core/demo.py), y esta llave entra
+    # como "solo ver" (/?ver=LLAVE). Vacio en cualquier instalacion de verdad.
+    demo_view_key: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

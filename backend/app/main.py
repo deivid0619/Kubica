@@ -11,6 +11,7 @@ from sqlalchemy.exc import OperationalError
 
 from app import models  # noqa: F401  (registra todas las tablas)
 from app.core.config import settings
+from app.core import demo
 from app.core.database import Base, SessionLocal, engine
 from app.core.idempotency import Idempotency
 from app.core.migrations import backfill_stock, ensure_columns, purge_old_photos, remove_sample_product, table_bins, table_sides
@@ -65,6 +66,8 @@ async def lifespan(app: FastAPI):
         table_bins(db)
         table_sides(db)
         remove_sample_product(db)
+        if settings.demo_view_key:
+            demo.build(db, settings.demo_view_key)  # solo la demo publica
         # la tienda guardada en Configuracion (si no hay, la de CATALOG_URL)
         catalog_service.set_url(ajustes_service.tienda_guardada(db))
         try:

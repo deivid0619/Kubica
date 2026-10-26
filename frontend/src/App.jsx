@@ -5,6 +5,7 @@ import NavBar from './ui/NavBar'
 import NotificationBell from './modules/avisos/NotificationBell'
 import OfflineBar from './ui/OfflineBar'
 import Icon, { BrandMark } from './ui/Icon'
+import { DEMO_KEY, demoWhatsapp } from './core/demo'
 import { datosMarca, setEmpresa } from './core/marca'
 import { setTallas } from './core/tallas'
 import { useAjustes } from './core/useApi'
@@ -54,17 +55,36 @@ function AccountMenu() {
           <div className="menu" role="menu">
             <div className="menu-head">
               <b>{user?.name}</b>
-              <span>{user?.email} · {user?.role === 'admin' ? 'Administrador' : 'Operador'}</span>
+              <span>{user?.email} · {user?.role === 'admin' ? 'Administrador' : user?.role === 'viewer' ? 'Solo ver' : 'Operador'}</span>
             </div>
             {/* instalar, avisos y lo demas: en Configuracion */}
             <button className="menu-item" role="menuitem" onClick={() => go('/settings')}>
               <Icon name="pencil" size={20} /> Configuración
             </button>
-            <button className="menu-item" role="menuitem" onClick={logout}>
-              <Icon name="logout" size={20} /> Cerrar sesión
-            </button>
+            {/* en la demo no hay a donde salir: quedaria en la pantalla de entrada */}
+            {!DEMO_KEY && (
+              <button className="menu-item" role="menuitem" onClick={logout}>
+                <Icon name="logout" size={20} /> Cerrar sesión
+              </button>
+            )}
           </div>
         </>
+      )}
+    </div>
+  )
+}
+
+// la demo publica (core/demo.js): que es y como pedirla, siempre a la vista
+function DemoBar() {
+  if (!DEMO_KEY) return null
+  const whatsapp = demoWhatsapp()
+  return (
+    <div className="demo-bar" role="note">
+      <span><b>Bodega de ejemplo</b><span className="demo-more"> · solo para mirar, nada se guarda</span></span>
+      {whatsapp && (
+        <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+          Pídela para tu bodega <Icon name="arrowRight" size={15} />
+        </a>
       )}
     </div>
   )
@@ -98,7 +118,7 @@ function Shell() {
           <span className="brand-word">{datosMarca().nombre}</span>
         </Link>
         <div className="topbar-actions">
-          {isViewer && (
+          {isViewer && !DEMO_KEY && (
             <span className="view-chip" title="Puedes recorrer todo; los cambios no se guardan">
               {user?.name && user.name !== 'Solo ver' ? <><b>{user.name}</b> · solo ver</> : 'Solo ver'}
             </span>
@@ -107,6 +127,7 @@ function Shell() {
           <AccountMenu />
         </div>
       </header>
+      <DemoBar />
       <OfflineBar />
       <main>
         <Routes>

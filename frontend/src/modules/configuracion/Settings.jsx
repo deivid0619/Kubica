@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../../core/api'
 import { useAuth } from '../../core/AuthContext'
+import { DEMO_KEY } from '../../core/demo'
 import { useInstall } from '../../core/install'
 import { datosMarca } from '../../core/marca'
 import { downloadCsv } from '../../core/utils'
@@ -181,7 +182,8 @@ export default function Settings() {
         {has('cuenta') && (
           <Section title="Cuenta">
             {!install.standalone && <SettingsRow icon="install" title="Instalar en este celular" onClick={doInstall} />}
-            <SettingsRow icon="logout" title="Cerrar sesión" hint={user?.email} onClick={logout} />
+            {/* en la demo no hay a donde salir (core/demo.js) */}
+            {!DEMO_KEY && <SettingsRow icon="logout" title="Cerrar sesión" hint={user?.email} onClick={logout} />}
           </Section>
         )}
       </div>
