@@ -171,7 +171,7 @@ computador). Son dos cuentas gratis y ~10 minutos.
 
 1. Crea una cuenta en [render.com](https://render.com) (puedes entrar con
    tu cuenta de GitHub).
-2. **New → Blueprint**, conecta el repo `Deivid260/Kubica`. Render lee
+2. **New → Blueprint**, conecta el repo `deivid0619/Kubica`. Render lee
    [`render.yaml`](render.yaml) y arma dos servicios: `bodega-backend` y
    `bodega-frontend`.
 3. Antes de confirmar, te va a pedir estas variables del backend:
